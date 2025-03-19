@@ -17,7 +17,7 @@ def get_french_bird_songs() -> list[dict]:
         'id',
         'gen',
         'sp',
-        'loc',
+        'en',
         'lat',
         'lng',
         'url',
@@ -26,7 +26,7 @@ def get_french_bird_songs() -> list[dict]:
     ]
 
     # API only return a single apge each time. Need to loop over pages
-    while end_not_reached and page:
+    while end_not_reached:
         # Select French birds songs with the highest quality
         params = {"query": ["cnt:France", "q:A", "type:song"], "page": page}
         response = requests.get(base_url, params=params)
@@ -41,8 +41,8 @@ def get_french_bird_songs() -> list[dict]:
         # Extract unique species names
         for record in data["recordings"]:
             species_name = f"{record['gen']} {record['sp']}"
-            # only consider species whose song can be downloaded (some are not available for conservation purpose)
-            if species_name not in species_set and record['file'] != '':
+            # only consider species whose song can be downloaded and have a vernacular name (some are not available for conservation purpose)
+            if species_name not in species_set and record['file'] != '' and record['en'] != '':
                 filtered_data = {key: record[key] for key in keys_to_keep}
                 species_set.add(species_name)
                 kept_records.append(filtered_data.copy()) # only keep the first record found for each species
@@ -68,6 +68,6 @@ def save_records(record_lst: list[dict], filename: pathlib.Path) -> None:
 
 
 if __name__ == '__main__':
-    file_path = pathlib.Path('french_bird_data')
+    file_path = pathlib.Path('french_bird_data.csv')
     records = get_french_bird_songs()
     save_records(records, file_path)
