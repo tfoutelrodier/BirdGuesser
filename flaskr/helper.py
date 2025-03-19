@@ -1,0 +1,3 @@
+'''
+Various misc helper functions
+'''

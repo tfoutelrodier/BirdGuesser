@@ -1,0 +1,24 @@
+<!doctype html>
+<title>{% block title %} Bird Guesser {% endblock %} - Flaskr</title>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+<script src="{{ url_for('static', filename='ajax_3.5.1_jquery.min.js') }}"></script>
+
+<section class="header">
+  <header>
+    {% block header %} Welcome to Bird Guesser {% endblock %}
+  </header>
+    {% block content %}{% endblock %}
+</section>
+
+<section class="left_block">
+    {% block left_top %}{% endblock %}
+    {% block left_mid %}{% endblock %}
+    {% block left_bottom %}{% endblock %}
+</section>
+
+
+<section class="right_block">
+    {% block right_top %}{% endblock %}
+    {% block right_mid %}{% endblock %}
+    {% block right_bottom %}{% endblock %}
+</section>
