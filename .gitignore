@@ -1,0 +1,3 @@
+.spyproject/
+flaskr/__pycache__
+falskr/test.py
