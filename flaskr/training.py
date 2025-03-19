@@ -39,7 +39,7 @@ def load_all_birds(db):
 
 
 @bp.route('/training', methods=('GET', 'POST'))
-def training():
+def training_bp():
     """Start a training session
     """
     if request.method == 'POST':
