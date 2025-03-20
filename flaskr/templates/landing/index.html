@@ -2,19 +2,23 @@
 
 {% block title %}Home{% endblock %}
 
+{% block additional_styles %} 
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+{% endblock %}
+
+
 {% block header %}Welcome to Bird Guesser{% endblock %}
 
 {% block left_top %}
     <h2>About Bird Guesser</h2>
-    <p>Bird Guesser is an interactive platform designed to help birdwatchers of all levels identify birds by their songs and calls.</p>
-    <p>Test your knowledge, improve your skills, and explore the wonderful world of bird songs!</p>
+    <p>Bird Guesser is a small webapp made to help you learn how to identify birds by sound only.</p>
 {% endblock %}
 
 {% block left_mid %}
     <h2>Current Features</h2>
         <ul>
-            <li>Play the game and try guessing a random French bird from its sound only !</li>
-            <li>Train on your birds of choice to get better then test yourself on them !</li>
+            <li>Play the game and try guessing a random French bird from its sound only!</li>
+            <li>Train on your birds of choice to get better then test yourself on them!</li>
         </ul>
 {% endblock %}
 
@@ -25,8 +29,10 @@
         <li><strong>Play Game:</strong> Jump right into the guessing game with random French birds</li>
         <li><strong>Training:</strong> Learn any (French) bird song of your choice</li>
     </ul>
-    <a href="{{ url_for('game.index') }}" class="nav-button">Start Playing</a>
-    <a href="{{ url_for('training.index') }}" class="nav-button">Start Training</a>
+    <div class="nav-buttons">
+        <a href="{{ url_for('game.index') }}" class="nav-button_landing">Start Playing</a>
+        <a href="{{ url_for('training.index') }}" class="nav-button_landing">Start Training</a>
+    </div>
 {% endblock %}
 
 {% block right_mid %}

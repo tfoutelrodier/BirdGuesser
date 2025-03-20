@@ -11,6 +11,8 @@ Idea : create a table with all the records for the current session. Then select 
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
+
+from db import get_bird_data
 # from werkzeug.security import check_password_hash, generate_password_hash
 
 # from db import get_db, create_profile_table
@@ -20,12 +22,31 @@ from flask import (
 training_bp = Blueprint('training', __name__)
 
 
-@training_bp.route('/')
+@training_bp.route('/', methods=('GET', 'POST'))
 def index():
     """Page where user can creates bird sets to train on"""
+
+     # default varaible that are used to update html when user answer a question
+    song_url = ""  # No url present at first
+
+    if request.method == 'POST':
+        # Avoid capitalization issue
+        bird_name = request.form.get('wantedBird', '').strip().lower()  
+        bird_data = get_bird_data(session['data_path'], [bird_name])
+        session['bird_name'] = bird_name
+        # construct the link manually if missing for some reason
+        if bird_data['file'].iloc[0] is not None:
+            session['bird_sound_file'] = bird_data['file'].iloc[0]
+        else:
+            session['bird_sound_file'] = f"https://www.xeno-canto.org/{str(bird_data['id'].iloc[0])}/download"
+        url = session['bird_sound_file']  # THis could be done better, refactor later
+
+
+
     return render_template('training/index.html', 
                           title='BirdGuesser',
-                          subtitle='Train to identify birds by their songs')
+                          subtitle='Train to identify birds by their songs',
+                          url=url)
 
 
 

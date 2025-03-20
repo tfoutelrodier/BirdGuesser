@@ -11,53 +11,54 @@
 
 
 {% block left_top %}
-	<!-- box to enter bird name
-    <form autocomplete="off", id="focusBirdForm">
-        <div class="autocomplete" style="width:300px;">
-            <input id="focusBirdFormText" type="text" name="focusBirdText">
-        </div>
-        <input type="submit" value="Valider">
-    </form>
- -->
-
-    <!-- Activate autocomplete
-    <script>
-        autocomplete(document.getElementById("focusBirdFormText"), {{ g.all_bird_lst | tojson }});
-    </script> -->
+    <h2>Training Mode</h2>
+    <p>In training mode, you can listen to any bird you want to learn them</p>
+    <p>You can also define a custom bird set to be tested on in the game section</p>
 {% endblock %}
 
 
 {% block left_mid %}
-	<div class="left-block">
-        <h2>Oiseaux sélectionnés (Focus)</h2>
-        <ul id="focus-list"></ul>
-    </div>
-
+     <!-- Form to retrieve data about birds -->
+    <form method="POST">
+        <label for="wantedBird">Enter bird name...:</label>
+        <input type="text" id="wantedBird" name="wantedBird" required>
+        <div id="autocomplete" class="autocomplete_div"></div>  <!-- for autocomplete suggestions -->
+        <button type="submit">Submit</button>
+    </form>
 {% endblock %}
 
+{% block left_bottom %}
+    <audio id="audioPlayer" controls>
+        <source id="audioSource" type="audio/mp3" 
+        {% if song_url %}>
+
+        Your browser does not support the audio element.
+    </audio>    
+{% endblock %}
 
 {% block right_top %}
-	<!-- sleect birds -->
-
-	<!-- box to enter bird name -->
-    <!-- <form autocomplete="off">
-        <div class="autocomplete" style="width:300px;">
-            <input id="rare_bird_form" type="text" name="focus_bird_text">
-        </div>
-        <input type="submit" value="Valider" onclick="addBirdToSet('rare_bird_form', 'rare-list', rareBirdLst)">
-    </form>
-
-
-    Activate autocomplete -->
-    <!-- <script>
-        autocomplete(document.getElementById("rare_bird_form"), focusBirdLst);
-    </script> -->
+    <h2>Featured Learning</h2>
+    <img alt="Bird Song Learning">
+    <p>Understanding the difference between calls and songs</p>
 {% endblock %}
 
-
 {% block right_mid %}
-    <div class="right-block">
-        <h2>Oiseaux selectionnés (Rappel)</h2>
-        <ul id="rare-list"></ul>
-    </div>
+    <h2>Bird Song Basics</h2>
+    <p>Birds produce two types of sounds:</p>
+    <ul>
+        <li><strong>Songs:</strong> Longer, more complex vocalizations used for territory defense and mate attraction</li>
+        <li><strong>Calls:</strong> Shorter, simpler vocalizations used for alarm, flight, or social contact</li>
+    </ul>
+    <p>Most songbirds have multiple songs in their repertoire.</p>
+{% endblock %}
+
+{% block right_bottom %}
+    <h2>Learning Resources</h2>
+    <ul>
+        <li>Interactive tutorials</li>
+        <li>Regional bird guides</li>
+        <li>Mnemonic devices for common bird songs</li>
+        <li>Seasonal variation guides</li>
+    </ul>
+    <p>Complete all tutorials to unlock advanced training!</p>
 {% endblock %}

@@ -5,7 +5,7 @@ Set up the flask server to have a queryiable database with an API for bird guess
 # Start the server using flask --app flaskr run --debug
 """
 
-
+""" 
 import os
 
 from flask import Flask
@@ -48,4 +48,4 @@ def create_app(test_config=None):
     # the tutorial the blog will be the main index
     app.add_url_rule('/', endpoint='training_setup')
 
-    return app
+    return app """

@@ -19,9 +19,13 @@ app.config['SESSION_FILE_DIR'] = os.path.join(os.getcwd(), 'tmp', 'flask_session
 app.config['SESSION_PERMANENT'] = False
 app.secret_key = 'test_key'
 
+# limit API call to Xenocanto database to at most 1 request per time_window (in seconds)
+app.config['API_TIME_WINDOW'] = 1  
 
 # Initialize Flask-Session
 Session(app)
+
+request_logs = {}
 
 # Register blueprints
 app.register_blueprint(landing_bp)

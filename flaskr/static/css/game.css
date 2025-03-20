@@ -49,3 +49,44 @@
 .control-button:hover {
     background-color: #3a6d96;
 }
+
+.autocomplete_div {
+    background-color: #fff;
+    color: #4682b4;
+    border: none;
+}
+
+.autocomplete_div:hover {
+    background-color: #e6f2ff;
+    color: #2d5986;
+}
+
+.autocomplete-item {
+    background-color: #fff;
+    color: #4682b4;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.autocomplete-item:hover {
+    background-color:#4682b4;
+    color:#fff;
+}
+
+.nav-button {
+    background-color: #fff;
+    color: #4682b4;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.nav-button:hover {
+    background-color: #e6f2ff;
+    color: #2d5986;
+}

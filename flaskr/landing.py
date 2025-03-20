@@ -15,9 +15,14 @@ landing_bp = Blueprint('landing', __name__)
 
 @landing_bp.route('/')
 def index():
-    """landing page with default informations"""
-    data_path = pathlib.Path(current_app.root_path).joinpath('data').joinpath('french_bird_data_test.csv')
+    """landing/home page with default informations"""
 
+    # initialise some state (better to move them to )
+
+    data_path = pathlib.Path(current_app.root_path).joinpath('data').joinpath('french_bird_data.csv')
+    if 'data_path' not in session: 
+        session['data_path'] = data_path.resolve()  # save data path is session as a quick way to reload data when needed to extract a bird name (might be better to use a sql db here for that)
+        
     # load random birds that will be used when playing on app launch
     if 'data_df' not in session:
         # If the sample isn't in session, generate it

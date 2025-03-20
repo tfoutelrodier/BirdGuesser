@@ -21,6 +21,7 @@
     <form method="POST">
         <label for="answer">Your Answer:</label>
         <input type="text" id="answer" name="answer" required>
+        <div id="autocomplete" class="autocomplete_div"></div>  <!-- for autocomplete suggestions -->
         <button type="submit">Submit</button>
     </form>
 {% endblock %}
@@ -32,6 +33,12 @@
     </p>
     {% endif %}
 {% endblock %}
+
+{% block top_left}
+    <div class="replay-button">
+    </div> 
+{% endblock %}
+
 
 {% block scripts %}
     <script src="{{ url_for('static', filename='js/game_script.js') }}"></script>
