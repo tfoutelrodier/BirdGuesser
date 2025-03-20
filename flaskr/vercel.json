@@ -2,14 +2,14 @@
     "version": 2,
     "builds": [
       {
-        "src": "flaskr/app.py",
+        "src": "BirdGuesser/flaskr/app.py",
         "use": "@vercel/python"
       }
     ],
     "routes": [
       {
         "src": "/(.*)",
-        "dest": "flaskr/app.py"
+        "dest": "BirdGuesser/flaskr/app.py"
       }
     ]
   }
