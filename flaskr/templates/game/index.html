@@ -4,35 +4,35 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/game.css') }}">
 {% endblock %}
 
-
-{% block header %}
-  <h1>{% block title %}Guess the bird{% endblock %}</h1>
-{% endblock %}
-
-
-
 {% block left_top %}
 
-    <h1>Click the button to play the sound</h1>
-
-    <!-- Button to trigger sound play -->
-    <button onclick="playBirdSound()">Play Sound</button>
-
-    <!-- Audio element to play the sound -->
+    <h1>Which bird is it ?</h1>
+    <!-- Bird song player -->
     <audio id="audioPlayer" controls>
         <source id="audioSource" type="audio/mp3" >
         Your browser does not support the audio element.
     </audio>    
 
-<!-- play bird sound
-    <audio controls>
-        <source src="http://localhost:5000/get-audio?id=123" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio> -->
+{% endblock %}
+
+
+{% block left_mid %}
+<!-- answer form for user guess of bird name-->
+    <form method="POST">
+        <label for="answer">Your Answer:</label>
+        <input type="text" id="answer" name="answer" required>
+        <button type="submit">Submit</button>
+    </form>
+{% endblock %}
+
+{% block left_bottom %}
+    {% if message %}
+    <p style="color: {% if 'Correct' in message %}green{% else %}red{% endif %};">
+        {{ message }}
+    </p>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
     <script src="{{ url_for('static', filename='js/game_script.js') }}"></script>
 {% endblock %}
-
-{% block right_top %}
-    <!-- text box to enter answer -->
-{% endblock %}
-
