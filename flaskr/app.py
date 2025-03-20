@@ -33,4 +33,7 @@ app.register_blueprint(game_bp, url_prefix='/game')
 app.register_blueprint(training_bp, url_prefix='/training')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # for local run
+    # app.run(debug=True)
+    # for vercel hosting
+    app.run(host="0.0.0.0", port=8080, debug=True)
