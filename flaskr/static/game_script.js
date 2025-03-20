@@ -14,28 +14,31 @@ document.addEventListener('DOMContentLoaded', function () {
         })
     })
 
-document.addEventListener('DOMContentLoaded', function () {
-    fetch('/game/get_session_attributes')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Error when fetching bird data');
-            }
-            console.log('Bird selected successfully', response.status);
-            return response.status;
-        })
-        .catch(error => {
-            console.error('Failed to select bird:', error);
-        })
-    })
+// document.addEventListener('DOMContentLoaded', function () {
+//     fetch('/game/get_session_attributes')
+//         .then(response => {
+//             if (!response.ok) {
+//                 throw new Error('Error when fetching bird data');
+//             }
+//             console.log('Bird selected successfully', response.status);
+//             return response.status;
+//         })
+//         .catch(error => {
+//             console.error('Failed to select bird:', error);
+//         })
+//     })
 
 function playBirdSound() {
-    fetch('/get_bird_sound_url')
+    fetch('/game/get_bird_sound_url')
         .then(response => response.json())
         .then(data => {
             console.log(data.url);
             const audioPlayer = document.getElementById("audioPlayer");
             audioPlayer.src = data.url;
             audioPlayer.play();
+        })
+        .catch(error => {
+            console.error("Error fetching bird sound URL:", error);
         });
 }
   

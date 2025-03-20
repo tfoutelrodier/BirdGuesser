@@ -67,10 +67,10 @@ def select_random_bird() -> str:
 
 @game_bp.route('/get_bird_sound_url', methods=['GET'])
 def get_bird_sound_url():
-    if 'bird_sound_url' in session:
-        return session['bird_sound_url'], 200
+    if 'bird_sound_file' in session:
+        return jsonify({"url": session['bird_sound_file']}), 200
     else:
-        return "", 404
+        return jsonify({"error": "No bird sound URL found"}), 404
 
     """ # load a mp3 sound in session from xenocanto database
     if 'bird_sound_url' not in session:
@@ -93,9 +93,9 @@ def get_bird_sound_url():
     # bird_data = db.execute(sql_command)
     # print(bird_data)
 
-@game_bp.route('/get_session_attributes', methods=['GET'])
-def get_session_attributes():
-    if session:
-        return list(session.keys()), 200
-    else:
-        return "", 400
+# @game_bp.route('/get_session_attributes', methods=['GET'])
+# def get_session_attributes():
+#     if session:
+#         return list(session.keys()), 200
+#     else:
+#         return "", 400
