@@ -37,32 +37,12 @@
     </audio>
 {% endblock %}
 
-{% block right_top %}
-    <h2>Featured Learning</h2>
-    <img alt="Bird Song Learning">
-    <p>Understanding the difference between calls and songs</p>
-{% endblock %}
-
 {% block right_mid %}
-    <h2>Bird Song Basics</h2>
-    <p>Birds produce two types of sounds:</p>
-    <ul>
-        <li><strong>Songs:</strong> Longer, more complex vocalizations used for territory defense and mate attraction</li>
-        <li><strong>Calls:</strong> Shorter, simpler vocalizations used for alarm, flight, or social contact</li>
-    </ul>
-    <p>Most songbirds have multiple songs in their repertoire.</p>
+    <h2>Featured Bird</h2>
+    <img src="{{ url_for('static', filename='assets/raven.jpg') }}" alt="Ravec">
+    <p>Common raven (Corvus vorax)</p>
 {% endblock %}
 
-{% block right_bottom %}
-    <h2>Learning Resources</h2>
-    <ul>
-        <li>Interactive tutorials</li>
-        <li>Regional bird guides</li>
-        <li>Mnemonic devices for common bird songs</li>
-        <li>Seasonal variation guides</li>
-    </ul>
-    <p>Complete all tutorials to unlock advanced training!</p>
-{% endblock %}
 
 {% block scripts %}
     <script src="{{ url_for('static', filename='js/training.js') }}"></script>
