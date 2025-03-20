@@ -6,13 +6,29 @@
 
 
 {% block left_top %}
-    <!-- play bird sound -->
+
+    <h1>Click the button to play the sound</h1>
+
+    <!-- Button to trigger sound play -->
+    <button onclick="playBirdSound()">Play Sound</button>
+
+    <!-- Audio element to play the sound -->
+    <audio id="audioPlayer" controls>
+        <source id="audioSource" type="audio/mp3" >
+        Your browser does not support the audio element.
+    </audio>    
+
+<!-- play bird sound
     <audio controls>
         <source src="http://localhost:5000/get-audio?id=123" type="audio/mpeg">
         Your browser does not support the audio element.
-    </audio>
+    </audio> -->
+    <script src="{{ url_for('static', filename='game_script.js') }}"></script>
 {% endblock %}
 
 {% block right_top %}
     <!-- text box to enter answer -->
 {% endblock %}
+
+<!-- <script src="{{ url_for('static', filename='game_script.js') }}"></script> -->
+<!-- <script src="{{ url_for('static', filename='ajax_3.5.1_jquery.min.js') }}" defer></script> -->

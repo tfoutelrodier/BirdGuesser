@@ -7,21 +7,19 @@
 
 
 {% block left_top %}
-	<!-- sleect birds -->
-
-	<!-- box to enter bird name -->
+	<!-- box to enter bird name
     <form autocomplete="off", id="focusBirdForm">
         <div class="autocomplete" style="width:300px;">
             <input id="focusBirdFormText" type="text" name="focusBirdText">
         </div>
         <input type="submit" value="Valider">
     </form>
+ -->
 
-
-    <!-- Activate autocomplete -->
+    <!-- Activate autocomplete
     <script>
         autocomplete(document.getElementById("focusBirdFormText"), {{ g.all_bird_lst | tojson }});
-    </script>
+    </script> -->
 {% endblock %}
 
 
@@ -38,7 +36,7 @@
 	<!-- sleect birds -->
 
 	<!-- box to enter bird name -->
-    <form autocomplete="off">
+    <!-- <form autocomplete="off">
         <div class="autocomplete" style="width:300px;">
             <input id="rare_bird_form" type="text" name="focus_bird_text">
         </div>
@@ -46,10 +44,10 @@
     </form>
 
 
-    <!-- Activate autocomplete -->
-    <script>
+    Activate autocomplete -->
+    <!-- <script>
         autocomplete(document.getElementById("rare_bird_form"), focusBirdLst);
-    </script>
+    </script> -->
 {% endblock %}
 
 

@@ -1,9 +1,4 @@
 """
-Class with all parameters for application
+All parameters here
 """
 
-from dataclasses import dataclass
-
-@dataclass
-class parameters:
-    default_db: 

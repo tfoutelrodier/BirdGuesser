@@ -6,11 +6,32 @@
 
 
 {% block left_top %}
-    <!-- play bird sound -->
-    <audio controls>
-        <source src="http://localhost:5000/get-audio?id=123" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
+<section class="hero">
+    <h1>{{ title }}</h1>
+    <h2>{{ subtitle }}</h2>
+    <p>Welcome to the Bird Song Explorer, where you can learn to identify birds by their distinctive calls!</p>
+    
+    <div class="features">
+        <div class="feature-card">
+            <h3>Learn</h3>
+            <p>Explore our training section to listen to bird songs and learn about different species.</p>
+            <a href="{{ url_for('training.index') }}" class="btn">Start Training</a>
+        </div>
+        
+        <div class="feature-card">
+            <h3>Play</h3>
+            <p>Test your knowledge in our interactive quiz game. Can you identify birds by their songs?</p>
+            <a href="{{ url_for('game.index') }}" class="btn">Play Game</a>
+        </div>
+    </div>
+</section>
+
+<section class="about">
+    <h2>About Bird Songs</h2>
+    <p>Bird songs are complex vocalizations that birds use for communication. Learning to identify birds by their songs is a valuable skill for birdwatchers and nature enthusiasts.</p>
+    
+    <p>Our app provides a fun, interactive way to learn these distinctive calls and test your knowledge.</p>
+</section>
 {% endblock %}
 
 {% block right_top %}
