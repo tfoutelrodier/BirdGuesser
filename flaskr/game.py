@@ -9,7 +9,7 @@ from io import BytesIO, StringIO
 import pandas as pd
 import requests
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for, jsonify
+    Blueprint, flash, g, redirect, render_template, request, session, url_for, jsonify, Response
 )
 # from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -36,30 +36,41 @@ def select_random_bird() -> str:
     """
     # load user dataset or random dataset if absent
     if 'user_data_df' in session:
-        df = pd.read_json(StringIO(session['user_data_df']), orient='split')
+        # Had issues with loading from json only. Added a way to load them as dict
+        if isinstance(session['user_data_df'], dict):
+            df = pd.DataFrame.from_dict(session['user_data_df'])
+        else:
+            # If it's a string, use StringIO
+            df = pd.read_json(StringIO(session['user_data_df']), orient='split')
     elif 'data_df' in session:
-        df = pd.read_json(StringIO(session['data_df']), orient='split')
+        if isinstance(session['data_df'], dict):
+            df = pd.DataFrame.from_dict(session['data_df'])
+        else:
+            # If it's a string, use StringIO
+            df = pd.read_json(StringIO(session['data_df']), orient='split')
     else:
         return "No loaded data found", 404
 
     bird_data = df.sample(n=1)
     # id and english name are always present from database construction rules
-    session['bird_name'] = bird_data['id']  # temp id while waiting for data exraction to finnish
-    session['bird_id'] = bird_data['id']
+    session['bird_name'] = str(bird_data['id'].iloc[0])  # temp id while waiting for data exraction to finish
+    session['bird_id'] = str(bird_data['id'].iloc[0])
     # construct the link manually if missing for some reason
-    if bird_data['file'] != '':
-        session['bird_sound_file'] = bird_data['file']
+    print(bird_data['file'].iloc[0])
+    print(session['bird_name'], session['bird_id'])
+    if bird_data['file'].iloc[0] is not None:
+        session['bird_sound_file'] = bird_data['file'].iloc[0]
     else:
-        session['bird_sound_file'] = f"https://www.xeno-canto.org/{bird_data['id']}/download"
-    return 200
-
+        session['bird_sound_file'] = f"https://www.xeno-canto.org/{str(bird_data['id'].iloc[0])}/download"
+    print(session['bird_sound_file'])
+    return "", 200
 
 @game_bp.route('/get_bird_sound_url', methods=['GET'])
 def get_bird_sound_url():
     if 'bird_sound_url' in session:
         return session['bird_sound_url'], 200
     else:
-        return None, 404
+        return "", 404
 
     """ # load a mp3 sound in session from xenocanto database
     if 'bird_sound_url' not in session:
@@ -87,4 +98,4 @@ def get_session_attributes():
     if session:
         return list(session.keys()), 200
     else:
-        return "", 999
+        return "", 400

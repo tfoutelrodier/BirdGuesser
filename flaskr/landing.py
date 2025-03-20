@@ -9,6 +9,7 @@ import pathlib
 from flask import Blueprint, render_template, session, current_app
 
 from db import load_random_rows_from_csv, load_bird_names
+from helper import store_dataframe_in_session
 
 landing_bp = Blueprint('landing', __name__)
 
@@ -21,7 +22,7 @@ def index():
     if 'data_df' not in session:
         # If the sample isn't in session, generate it
         data_df = load_random_rows_from_csv(data_path, 100)
-        session['data_df'] = data_df.to_json(orient='split')  # Save as JSON
+        store_dataframe_in_session(data_df, key='data_df')
 
     if 'bird_name_list' not in session:
         session['bird_name_list'] = load_bird_names(data_path)
