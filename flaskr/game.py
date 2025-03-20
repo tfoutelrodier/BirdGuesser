@@ -3,19 +3,14 @@
 Main game mode where you hear a sound and need to enter the bird name
 
 """
-from io import BytesIO, StringIO
+from io import StringIO
 import time
 
 # import functools
 import pandas as pd
-import requests
-from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for, jsonify, Response, current_app
-)
+from flask import Blueprint, render_template, request, session, jsonify, current_app
 
 import globals  # for api tracking
-
-from db import load_bird_names
 
 game_bp = Blueprint('game', __name__)
 
@@ -123,3 +118,4 @@ def get_bird_name_list():
         return jsonify(session['bird_name_list']), 200
     else:
         return "Bird names not loaded in session", 404
+    

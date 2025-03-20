@@ -6,11 +6,7 @@ Training mode is where you are tested on a set of bird you have defined
 Idea : create a table with all the records for the current session. Then select from it
 """
 
-# import functools
-import pandas as pd
-from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for, jsonify
-)
+from flask import Blueprint, render_template, request, session, jsonify
 
 from db import get_bird_data
 # from werkzeug.security import check_password_hash, generate_password_hash

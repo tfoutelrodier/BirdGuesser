@@ -6,7 +6,7 @@
 
 
 {% block header %}
-  <h1>{% block title %}Create training set{% endblock %}</h1>
+  <h1>{% block title %}Training ground{% endblock %}</h1>
 {% endblock %}
 
 
@@ -33,9 +33,8 @@
             src="{{ song_url }}"
         {% endif %}
         >
-
         Your browser does not support the audio element.
-    </audio>    
+    </audio>
 {% endblock %}
 
 {% block right_top %}
@@ -63,4 +62,8 @@
         <li>Seasonal variation guides</li>
     </ul>
     <p>Complete all tutorials to unlock advanced training!</p>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='js/training.js') }}"></script>
 {% endblock %}
