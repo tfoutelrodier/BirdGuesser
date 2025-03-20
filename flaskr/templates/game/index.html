@@ -1,8 +1,14 @@
 {% extends 'base.html' %}
 
+{% block additional_styles %} 
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/game.css') }}">
+{% endblock %}
+
+
 {% block header %}
   <h1>{% block title %}Guess the bird{% endblock %}</h1>
 {% endblock %}
+
 
 
 {% block left_top %}
@@ -23,12 +29,10 @@
         <source src="http://localhost:5000/get-audio?id=123" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio> -->
-    <script src="{{ url_for('static', filename='game_script.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/game_script.js') }}"></script>
 {% endblock %}
 
 {% block right_top %}
     <!-- text box to enter answer -->
 {% endblock %}
 
-<!-- <script src="{{ url_for('static', filename='game_script.js') }}"></script> -->
-<!-- <script src="{{ url_for('static', filename='ajax_3.5.1_jquery.min.js') }}" defer></script> -->

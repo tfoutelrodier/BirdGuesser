@@ -1,39 +1,37 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
-{% block header %}
-  <h1>{% block title %}Guess the bird{% endblock %}</h1>
-{% endblock %}
+{% block title %}Home{% endblock %}
 
+{% block header %}Welcome to Bird Guesser{% endblock %}
 
 {% block left_top %}
-<section class="hero">
-    <h1>{{ title }}</h1>
-    <h2>{{ subtitle }}</h2>
-    <p>Welcome to the Bird Song Explorer, where you can learn to identify birds by their distinctive calls!</p>
-    
-    <div class="features">
-        <div class="feature-card">
-            <h3>Learn</h3>
-            <p>Explore our training section to listen to bird songs and learn about different species.</p>
-            <a href="{{ url_for('training.index') }}" class="btn">Start Training</a>
-        </div>
-        
-        <div class="feature-card">
-            <h3>Play</h3>
-            <p>Test your knowledge in our interactive quiz game. Can you identify birds by their songs?</p>
-            <a href="{{ url_for('game.index') }}" class="btn">Play Game</a>
-        </div>
-    </div>
-</section>
-
-<section class="about">
-    <h2>About Bird Songs</h2>
-    <p>Bird songs are complex vocalizations that birds use for communication. Learning to identify birds by their songs is a valuable skill for birdwatchers and nature enthusiasts.</p>
-    
-    <p>Our app provides a fun, interactive way to learn these distinctive calls and test your knowledge.</p>
-</section>
+    <h2>About Bird Guesser</h2>
+    <p>Bird Guesser is an interactive platform designed to help birdwatchers of all levels identify birds by their songs and calls.</p>
+    <p>Test your knowledge, improve your skills, and explore the wonderful world of bird songs!</p>
 {% endblock %}
 
-{% block right_top %}
-    <!-- text box to enter answer -->
+{% block left_mid %}
+    <h2>Current Features</h2>
+        <ul>
+            <li>Play the game and try guessing a random French bird from its sound only !</li>
+            <li>Train on your birds of choice to get better then test yourself on them !</li>
+        </ul>
 {% endblock %}
+
+{% block left_bottom %}
+    <h2>Getting Started</h2>
+    <p>Choose one of the following options:</p>
+    <ul>
+        <li><strong>Play Game:</strong> Jump right into the guessing game with random French birds</li>
+        <li><strong>Training:</strong> Learn any (French) bird song of your choice</li>
+    </ul>
+    <a href="{{ url_for('game.index') }}" class="nav-button">Start Playing</a>
+    <a href="{{ url_for('training.index') }}" class="nav-button">Start Training</a>
+{% endblock %}
+
+{% block right_mid %}
+    <h2>Featured Bird</h2>
+    <img src="{{ url_for('static', filename='assets/robin.jpg') }}" alt="Robin">
+    <p>European robin (Erithacus rubecula)</p>
+{% endblock %}
+

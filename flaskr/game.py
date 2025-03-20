@@ -71,31 +71,3 @@ def get_bird_sound_url():
         return jsonify({"url": session['bird_sound_file']}), 200
     else:
         return jsonify({"error": "No bird sound URL found"}), 404
-
-    """ # load a mp3 sound in session from xenocanto database
-    if 'bird_sound_url' not in session:
-        return "No loaded bird data", 404
-
-    # Download the sound file
-    response = requests.get(session['bird_sound_url'])
-
-    if response.status_code != 200:
-        return "Can't load bird data", response.status_code
-
-    # Store the sound file as a BytesIO object
-    session['sound_file'] = BytesIO(response.content)
-    return 200 """
-
-    # sql_command = """SELECT uid, id, en, file, file_name FROM table
-    #             ORDER BY RAND()
-    #             LIMIT 1"""
-    
-    # bird_data = db.execute(sql_command)
-    # print(bird_data)
-
-# @game_bp.route('/get_session_attributes', methods=['GET'])
-# def get_session_attributes():
-#     if session:
-#         return list(session.keys()), 200
-#     else:
-#         return "", 400

@@ -1,5 +1,9 @@
 {% extends 'base.html' %}
 
+{% block additional_styles %} 
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/training.css') }}">
+{% endblock %}
+
 
 {% block header %}
   <h1>{% block title %}Create training set{% endblock %}</h1>

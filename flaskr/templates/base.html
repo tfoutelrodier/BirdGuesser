@@ -1,51 +1,49 @@
 <!doctype html>
-<title>{% block title %} Bird Guesser {% endblock %} - Flaskr</title>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %} Bird Guesser {% endblock %}</title>
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  {% block additional_styles %} {% endblock %}
+</head>
 
 <body>
-  <section class="header">
-    <header>
-      {% block header %} Welcome to Bird Guesser {% endblock %}
-    </header>
-      {% block content %}{% endblock %}
-  </section>
-  
-  <section class="left_block">
-    {% block left_top %}{% endblock %}
-    {% block left_mid %}{% endblock %}
-    {% block left_bottom %}{% endblock %}
-  </section>
+  <div class="container">
+    <section class="header">
+        <header>
+            <h1>{% block header %}Welcome to Bird Guesser{% endblock %}</h1>
+            <div class="nav-buttons">
+                <a href="{{ url_for('landing.index') }}" class="nav-button">Home</a>
+                <a href="{{ url_for('game.index') }}" class="nav-button">Play Game</a>
+                <a href="{{ url_for('training.index') }}" class="nav-button">Training</a>
+            </div>
+        </header>
+    </section>
+    
+    <section class="left_block">
+      {% block left_top %}{% endblock %}
+      {% block left_mid %}{% endblock %}
+      {% block left_bottom %}{% endblock %}
+    </section>
 
 
-  <section class="right_block">
-      {% block right_top %}{% endblock %}
-      {% block right_mid %}{% endblock %}
-      {% block right_bottom %}{% endblock %}
-  </section>
-
-  <header>
-      <nav>
-          <div class="logo">
-              <a href="{{ url_for('landing.index') }}">Bird Song Explorer</a>
-          </div>
-          <ul class="nav-links">
-              <li><a href="{{ url_for('landing.index') }}">Home</a></li>
-              <li><a href="{{ url_for('training.index') }}">Training</a></li>
-              <li><a href="{{ url_for('game.index') }}">Game</a></li>
-          </ul>
-      </nav>
-  </header>
+    <section class="right_block">
+        {% block right_top %}{% endblock %}
+        {% block right_mid %}{% endblock %}
+        {% block right_bottom %}{% endblock %}
+    </section>
+    
+    <main>
+        {% block main %}{% endblock %}
+    </main>
+    
+    <footer>
+        <p>&copy; 2025 BirdGuesser </p>
+    </footer>
+  </div>
   
-  <main>
-      {% block main %}{% endblock %}
-  </main>
-  
-  <footer>
-      <p>&copy; 2025 Bird Song Explorer</p>
-  </footer>
-  
-  {% block scripts %}{% endblock %}
+  {% block scripts %}
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+  {% endblock %}
 </body>
 </html>
-
-<script src="{{ url_for('static', filename='script.js') }}"></script>
-<!-- <script src="{{ url_for('static', filename='ajax_3.5.1_jquery.min.js') }}" defer></script> -->

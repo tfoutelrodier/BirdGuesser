@@ -1,5 +1,4 @@
-
-// load a bird upon page loading
+// load a bird data upon page loading
 document.addEventListener('DOMContentLoaded', function () {
     fetch('/game/select_random_bird')
         .then(response => {
@@ -14,20 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
         })
     })
 
-// document.addEventListener('DOMContentLoaded', function () {
-//     fetch('/game/get_session_attributes')
-//         .then(response => {
-//             if (!response.ok) {
-//                 throw new Error('Error when fetching bird data');
-//             }
-//             console.log('Bird selected successfully', response.status);
-//             return response.status;
-//         })
-//         .catch(error => {
-//             console.error('Failed to select bird:', error);
-//         })
-//     })
-
+// play sound from current bird
 function playBirdSound() {
     fetch('/game/get_bird_sound_url')
         .then(response => response.json())
