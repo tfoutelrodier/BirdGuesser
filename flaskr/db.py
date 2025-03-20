@@ -62,7 +62,7 @@ def get_bird_data(filepath: pathlib.Path, bird_names: list[str]) -> pd.DataFrame
                 name_index = i
         if name_index is not None:
             for _, row in enumerate(reader, start=1):
-                if row[name_index] in bird_names:
+                if row[name_index].strip().lower() in bird_names:
                     kept_rows.append(row)
     
     return pd.DataFrame(kept_rows, columns=header) 

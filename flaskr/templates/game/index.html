@@ -28,18 +28,23 @@
 
 {% block left_bottom %}
     {% if message %}
-    <p style="color: {% if 'Correct' in message %}green{% else %}red{% endif %};">
+    {% set text_color = 'green' if 'Correct' in message else 'red' %}
+    <p style="color: {{ text_color }};">  <!-- VSCode throws a warning/error signal here but it works -->
         {{ message }}
     </p>
     {% endif %}
 {% endblock %}
 
-{% block top_left}
-    <div class="replay-button">
-    </div> 
+{% block right_top %}
+    <p>
+        Try to guess the bird ! 
+    </p>
+    <p>
+        After each submission, a new bird sound is loaded.
+    </p>
 {% endblock %}
 
 
 {% block scripts %}
-    <script src="{{ url_for('static', filename='js/game_script.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/training.js') }}"></script>
 {% endblock %}

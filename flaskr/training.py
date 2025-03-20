@@ -7,9 +7,9 @@ Idea : create a table with all the records for the current session. Then select 
 """
 
 # import functools
-
+import pandas as pd
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
+    Blueprint, flash, g, redirect, render_template, request, session, url_for, jsonify
 )
 
 from db import get_bird_data
@@ -33,21 +33,36 @@ def index():
         # Avoid capitalization issue
         bird_name = request.form.get('wantedBird', '').strip().lower()  
         bird_data = get_bird_data(session['data_path'], [bird_name])
-        session['bird_name'] = bird_name
+        
+        print(bird_data, type(bird_data))
+        print(session['data_path'])
         # construct the link manually if missing for some reason
+        if bird_data.size == 0:
+            return "Bird is not in database", 404
+        
+        session['bird_name'] = bird_name
+
         if bird_data['file'].iloc[0] is not None:
             session['bird_sound_file'] = bird_data['file'].iloc[0]
         else:
             session['bird_sound_file'] = f"https://www.xeno-canto.org/{str(bird_data['id'].iloc[0])}/download"
-        url = session['bird_sound_file']  # THis could be done better, refactor later
+        song_url = session['bird_sound_file']  # THis could be done better, refactor later
 
 
 
     return render_template('training/index.html', 
                           title='BirdGuesser',
                           subtitle='Train to identify birds by their songs',
-                          url=url)
+                          song_url=song_url)
 
+
+@training_bp.route('/get_bird_name_list', methods=['GET'])
+def get_bird_name_list():
+    # return a json serialised list of all possible bird names
+    if 'bird_name_list' in session:
+        return jsonify(session['bird_name_list']), 200
+    else:
+        return "Bird names not loaded in session", 404
 
 
 # @bp.route('/')

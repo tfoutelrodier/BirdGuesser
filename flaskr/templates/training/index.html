@@ -20,17 +20,19 @@
 {% block left_mid %}
      <!-- Form to retrieve data about birds -->
     <form method="POST">
-        <label for="wantedBird">Enter bird name...:</label>
         <input type="text" id="wantedBird" name="wantedBird" required>
         <div id="autocomplete" class="autocomplete_div"></div>  <!-- for autocomplete suggestions -->
-        <button type="submit">Submit</button>
+        <button type="submit">Load song</button>
     </form>
 {% endblock %}
 
 {% block left_bottom %}
     <audio id="audioPlayer" controls>
         <source id="audioSource" type="audio/mp3" 
-        {% if song_url %}>
+        {% if song_url %}
+            src="{{ song_url }}"
+        {% endif %}
+        >
 
         Your browser does not support the audio element.
     </audio>    
