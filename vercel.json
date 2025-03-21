@@ -2,14 +2,14 @@
     "version": 2,
     "builds": [
         {
-            "src": "flaskr/wsgi.py",
+            "src": "wsgi.py",
             "use": "@vercel/python"
         }
     ],
     "routes": [
         {
             "src": "/(.*)",
-            "dest": "flaskr/wsgi.py"
+            "dest": "wsgi.py"
         }
     ],
     "cleanUrls": true
