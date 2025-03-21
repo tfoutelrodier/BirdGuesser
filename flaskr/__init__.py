@@ -24,7 +24,7 @@ load_dotenv()  # for loading snesitive data
 
 # Data is stored in file server side because file could take a few Mb with sounds
 app.config['SESSION_TYPE'] = 'filesystem'
-session_folder = os.path.join(os.getcwd(), 'tmp', 'flask_sessions')
+session_folder = os.path.join(os.path.dirname(__file__), 'tmp', 'flask_sessions')
 if not os.path.isdir(session_folder):
     os.makedirs(session_folder)  # Convert Path to string
 app.config['SESSION_FILE_DIR'] = session_folder  # Use os.path for compatibility

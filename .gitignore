@@ -1,5 +1,6 @@
 .venv/
 .spyproject/
+__pychache__
 flaskr/__pycache__
 falskr/test.py
 flaskr/data/french_bird_data_test.csv

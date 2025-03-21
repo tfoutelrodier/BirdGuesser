@@ -52,7 +52,6 @@ def get_bird_data(filepath: pathlib.Path, bird_names: list[str]) -> pd.DataFrame
         header = next(reader)  # Read header
         
         for i, col_name in enumerate(header):
-            print(col_name)
             if col_name == 'en':
                 name_index = i
         if name_index is not None:
