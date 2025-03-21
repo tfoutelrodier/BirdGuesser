@@ -17,7 +17,7 @@ To run locally
 ```
 git clone https://github.com/tfoutelrodier/BirdGuesser
 # activate venv or equivalent of choice here if want to use one.
-pip install -r BirdGuesser/flaskr/requirements.txt
+pip install -r BirdGuesser/requirements.txt
 flask --run BirdGuesser/flaskr
 ```
 
@@ -28,6 +28,10 @@ I also wanted to learn how to make simple webapps. I knew python and the bases o
 
 Similar games exists and can be found on the internert but this one I can customize how I want.
 
+## Data
 
+Bird sound data was obtained from xenecanto database (https://xeno-canto.org/)
+ALl French birds were recovered from this database (script data/french_bird_data_extraction.py)
+Bird sound are loaded from xenocanto using their API.
 
 
