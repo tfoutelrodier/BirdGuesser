@@ -28,7 +28,7 @@ app.config['SESSION_TYPE'] = 'filesystem'
 hosting = os.getenv('HOSTING', 0)
 # vercel hosting requires storing in a given location
 if hosting == "vercel":
-    session_folder = os.path('/tmp')
+    session_folder = '/tmp'
 else:
     session_folder = os.path.join(os.path.dirname(__file__), 'tmp', 'flask_sessions')
 if not os.path.isdir(session_folder):
