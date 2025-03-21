@@ -11,6 +11,7 @@ This is still a work in progress.
 ## Installation
 
 The webapp is hosted at https://bird-guesser.vercel.app/
+WARNING not fully functionning at the moment. Working on it
 
 To run locally
 ```

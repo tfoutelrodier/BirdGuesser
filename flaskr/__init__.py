@@ -31,8 +31,8 @@ if hosting == "vercel":
     session_folder = '/tmp'
 else:
     session_folder = os.path.join(os.path.dirname(__file__), 'tmp', 'flask_sessions')
-if not os.path.isdir(session_folder):
-    os.makedirs(session_folder)  # Convert Path to string
+    if not os.path.isdir(session_folder):
+        os.makedirs(session_folder)  # Convert Path to string
 app.config['SESSION_FILE_DIR'] = session_folder  # Use os.path for compatibility
 
 app.config['SESSION_PERMANENT'] = False
