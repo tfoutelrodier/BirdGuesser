@@ -90,3 +90,11 @@
     background-color: #e6f2ff;
     color: #2d5986;
 }
+
+.success-message {
+    color: green;
+}
+.error-message {
+    color: red;
+}
+

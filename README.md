@@ -9,8 +9,13 @@ You can also train by listening to specific birds.
 This is still a work in progress, there are code part that are from a previous implementation design.
 
 ## Installation
+
+Warning: The main branch is setup to be ran locally only.
+
 ```
 git clone https://github.com/tfoutelrodier/BirdGuesser
+# activate venv or equivalent of choice here if want to use one.
+pip install -r BirdGuesser/flaskr/requirements.txt
 python BirdGuesser/flaskr/app.py
 ```
 
