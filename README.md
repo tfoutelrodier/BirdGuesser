@@ -6,17 +6,18 @@ An educational game about learning bird songs.
 Listen to songs and try to recognize which bird it is.
 You can also train by listening to specific birds.
 
-This is still a work in progress, there are code part that are from a previous implementation design.
+This is still a work in progress.
 
 ## Installation
 
-Warning: The main branch is setup to be ran locally only.
+The webapp is hosted at https://bird-guesser.vercel.app/
 
+To run locally
 ```
 git clone https://github.com/tfoutelrodier/BirdGuesser
 # activate venv or equivalent of choice here if want to use one.
 pip install -r BirdGuesser/flaskr/requirements.txt
-python BirdGuesser/flaskr/app.py
+flask --run BirdGuesser/flaskr
 ```
 
 ## Origin
