@@ -4,4 +4,5 @@ flaskr/__pycache__
 falskr/test.py
 flaskr/data/french_bird_data_test.csv
 flaskr/tmp/
-
+.env
+.vercel
