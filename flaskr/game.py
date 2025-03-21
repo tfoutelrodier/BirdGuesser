@@ -63,23 +63,16 @@ def select_random_bird() -> str:
     else:
         return "No loaded data found", 404
 
-    print(session.keys())
     bird_data = df.sample(n=1)
-    print(df.columns)
-    print(bird_data)
     # id and english name are always present from database construction rules
     session['bird_name'] = str(bird_data['en'].iloc[0])  # temp id while waiting for data exraction to finish
     session['bird_id'] = str(bird_data['id'].iloc[0])
-    
-    print(bird_data['file'].iloc[0])
-    print(session['bird_name'], session['bird_id'])
 
     # construct the link manually if missing for some reason
     if bird_data['file'].iloc[0] is not None:
         session['bird_sound_file'] = bird_data['file'].iloc[0]
     else:
         session['bird_sound_file'] = f"https://www.xeno-canto.org/{str(bird_data['id'].iloc[0])}/download"
-    print(session['bird_sound_file'])
     return "", 200
 
 
@@ -92,7 +85,6 @@ def get_bird_sound_url():
     current_time = time.time()
     last_request_time = globals.user_requests.get(user_ip, None)
     api_rate_limit = current_app.config.get('API_TIME_WINDOW', 2)  # Issue with recovering the api_rate_limit at the moment, use this to et default
-    print(f"API rate = {api_rate_limit}")
     if last_request_time is not None:
         if current_time - last_request_time < current_app.config['API_TIME_WINDOW']:
             # 429 is for rate limiting issues from what I saw
