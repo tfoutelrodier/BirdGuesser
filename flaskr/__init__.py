@@ -1,51 +1,46 @@
 # -*- coding: utf-8 -*-
 """
-Set up the flask server to have a queryiable database with an API for bird guesser
+Set up the flask server to have a queryable database with an API for bird guesser
 
 # Start the server using flask --app flaskr run --debug
 """
 
-""" 
 import os
+from pathlib import Path
 
-from flask import Flask
+from flask import Flask, render_template, current_app
+from flask_session import Session
+from dotenv import load_dotenv
 
-
-def create_app(test_config=None):
-    # create and configure the app
-    app = Flask(__name__, instance_relative_config=True)
-    app.config.from_mapping(
-        SECRET_KEY='dev',
-        DATABASE=os.path.join(app.instance_path, 'birds.sqlite'),
-    )
-
-    # Allow to use a config file if present. OPTIONAL
-    if test_config is None:
-        # load the instance config, if it exists, when not testing
-        app.config.from_pyfile('config.py', silent=True)
-    else:
-        # load the test config if passed in
-        app.config.from_mapping(test_config)
-
-    # ensure the instance folder exists
-    try:
-        os.makedirs(app.instance_path)
-    except OSError:
-        pass
+# Import blueprints
+from flaskr.landing import landing_bp
+from flaskr.game import game_bp
+from flaskr.training import training_bp
 
 
-    from . import db
-    db.init_app(app)
+app = Flask(__name__)
 
-    from . import training
-    app.register_blueprint(training.bp)
+load_dotenv()  # for loading snesitive data
 
-    from . import game
-    app.register_blueprint(game.bp)
-    
-    # in another app, you might define a separate main index here with
-    # app.route, while giving the blog blueprint a url_prefix, but for
-    # the tutorial the blog will be the main index
-    app.add_url_rule('/', endpoint='training_setup')
+# Data is stored in file server side because file could take a few Mb with sounds
+app.config['SESSION_TYPE'] = 'filesystem'
+session_folder = os.path.join(os.getcwd(), 'tmp', 'flask_sessions')
+if not os.path.isdir(session_folder):
+    os.makedirs(session_folder)  # Convert Path to string
+app.config['SESSION_FILE_DIR'] = session_folder  # Use os.path for compatibility
 
-    return app """
+app.config['SESSION_PERMANENT'] = False
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default-secret-key')
+
+# limit API call to Xenocanto database to at most 1 request per time_window (in seconds)
+app.config['API_TIME_WINDOW'] = 1  
+
+# Initialize Flask-Session
+Session(app)
+
+request_logs = {}
+
+# Register blueprints
+app.register_blueprint(landing_bp, url_prefix='/')  # Set landing_bp as the root route
+app.register_blueprint(game_bp, url_prefix='/game')
+app.register_blueprint(training_bp, url_prefix='/training')

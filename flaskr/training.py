@@ -8,7 +8,7 @@ Idea : create a table with all the records for the current session. Then select 
 
 from flask import Blueprint, render_template, request, session, jsonify
 
-from db import get_bird_data
+from flaskr.db import get_bird_data
 # from werkzeug.security import check_password_hash, generate_password_hash
 
 # from db import get_db, create_profile_table
@@ -30,8 +30,6 @@ def index():
         bird_name = request.form.get('wantedBird', '').strip().lower()  
         bird_data = get_bird_data(session['data_path'], [bird_name])
         
-        print(bird_data, type(bird_data))
-        print(session['data_path'])
         # construct the link manually if missing for some reason
         if bird_data.size == 0:
             return "Bird is not in database", 404
@@ -60,68 +58,4 @@ def get_bird_name_list():
     else:
         return "Bird names not loaded in session", 404
 
-
-# @bp.route('/')
-# def start_page():
-#     db = get_db()
-#     return render_template('base.html')
-
-
-# def load_all_birds(db):
-#     """
-#     Return a list of all birds available in the database
-#     For test UID are used rather than the full name
-#     """
-#     # Returns a list of tuple (1 tuple here)
-#     data_records = db.execute(
-#         "SELECT file_name FROM birds").fetchall()
-    
-#     bird_lst = [record[0] for record in data_records]
-#     return(bird_lst)
-
-
-# @training_bp.route('/training', methods=('GET', 'POST'))
-# def training_bp():
-#     """Start a training session
-#     """
-#     if request.method == 'POST':
-        
-#         # select a bird record
-#         db = get_db()
-        
-#         # Get all possible UID
-#         # Returns a list of tuple (1 tuple here)
-#         uid_records = db.execute(
-#             "SELECT uid FROM birds").fetchall()
-
-#         g.bird_uid_lst = [uid[0] for uid in uid_records]
-
-#         # flash(error)
-
-#     return render_template('training/training.html')
-
-
-# @training_bp.route('/', methods=('GET', 'POST'))
-# def training_setup():
-#     """
-#     Define the training set
-#     """
-#     db = get_db()
-#     # If there are birds selected retrieve the corresponding data
-#     if not hasattr(g, "all_bird_lst"):
-#         g.all_bird_lst = load_all_birds(db)
-#         print(g.all_bird_lst)
-    
-#     # initialise the profile is not already done
-#     init_user_profile()
-    
-#     # print(g.all_bird_lst)
-#     return render_template('training/setup.html')
-
-
-# @training_bp.route('/create_user_set', methods=('GET', 'POST'))
-# def create_training_set():
-#     if request.method == 'POST':
-#         db = get_db()
-#         # create_profile_table(db, table_name)
         

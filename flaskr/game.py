@@ -10,7 +10,7 @@ import time
 import pandas as pd
 from flask import Blueprint, render_template, request, session, jsonify, current_app
 
-import globals  # for api tracking
+from flaskr import globals  # for api tracking
 
 game_bp = Blueprint('game', __name__)
 
@@ -86,7 +86,7 @@ def get_bird_sound_url():
     last_request_time = globals.user_requests.get(user_ip, None)
     api_rate_limit = current_app.config.get('API_TIME_WINDOW', 2)  # Issue with recovering the api_rate_limit at the moment, use this to et default
     if last_request_time is not None:
-        if current_time - last_request_time < current_app.config['API_TIME_WINDOW']:
+        if current_time - last_request_time < api_rate_limit:
             # 429 is for rate limiting issues from what I saw
             return jsonify({"error": "Wait slightly before using trying again please"}), 429
         else:

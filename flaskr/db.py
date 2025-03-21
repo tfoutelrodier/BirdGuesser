@@ -32,7 +32,6 @@ def load_bird_names(filepath: pathlib.Path) -> list[str]:
         header = next(reader)  # Read header
         
         for i, col_name in enumerate(header):
-            print(col_name)
             if col_name == 'en':
                 name_index = i
         if name_index is not None:

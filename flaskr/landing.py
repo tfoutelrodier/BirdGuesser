@@ -8,8 +8,8 @@ import pathlib
 
 from flask import Blueprint, render_template, session, current_app
 
-from db import load_random_rows_from_csv, load_bird_names
-from helper import store_dataframe_in_session
+from flaskr.db import load_random_rows_from_csv, load_bird_names
+from flaskr.helper import store_dataframe_in_session
 
 landing_bp = Blueprint('landing', __name__)
 
