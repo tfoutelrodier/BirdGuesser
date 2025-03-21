@@ -18,7 +18,7 @@ To run locally
 git clone https://github.com/tfoutelrodier/BirdGuesser
 # activate venv or equivalent of choice here if want to use one.
 pip install -r BirdGuesser/requirements.txt
-flask --run BirdGuesser/flaskr
+flask --app BirdGuesser/flaskr run
 ```
 
 ## Origin
