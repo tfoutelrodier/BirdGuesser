@@ -43,10 +43,15 @@ def load_bird_names(filepath: pathlib.Path) -> list[str]:
 
 def get_bird_data(filepath: pathlib.Path, bird_names: list[str]) -> pd.DataFrame:
     # returns a dataframe with all data from a list of bird names
+    # input names should have a match in the 'en' column of the data (vernacular names)
     
     # avoid loading all the file at once
     kept_rows = []
     name_index = None
+
+    # sanitize bird names
+    bird_names_cleaned = [name.strip().lower() for name in bird_names]
+
     with open(filepath, mode="r", encoding="utf-8") as file:
         reader = csv.reader(file, delimiter="|")
         header = next(reader)  # Read header
@@ -56,7 +61,7 @@ def get_bird_data(filepath: pathlib.Path, bird_names: list[str]) -> pd.DataFrame
                 name_index = i
         if name_index is not None:
             for _, row in enumerate(reader, start=1):
-                if row[name_index].strip().lower() in bird_names:
+                if row[name_index].strip().lower() in bird_names_cleaned:
                     kept_rows.append(row)
     
     return pd.DataFrame(kept_rows, columns=header) 
