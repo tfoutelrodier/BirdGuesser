@@ -1,3 +1,4 @@
+import logging
 import os
 
 class Config:
@@ -22,6 +23,9 @@ class Config:
     # number of api call per second for xenocanto database
     API_TIME_WINDOW = 1  
 
+    LOGS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'logs')
+    LOG_LEVEL = logging.INFO  # logging package default log levels
+
 
 # for testing
 class TestConfig(Config):
@@ -31,11 +35,13 @@ class TestConfig(Config):
 # Standard config when coding
 class DevConfig(Config):
     DEBUG = True
+    LOGS_LEVEL = logging.DEBUG
 
 
 # For vercel hosting
 class VercelConfig(Config):
     SESSION_FILE_DIR = '/tmp'
+    LOGS_DIR = '/tmp'
 
 
 # How to access each config
