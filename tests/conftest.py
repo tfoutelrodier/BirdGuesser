@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from flaskr import create_app
 
 @pytest.fixture
-def app():
+def app() -> 'flask.Flask':
     """Create and configure a Flask app for testing."""
     app = create_app('testing')
 
@@ -20,13 +20,13 @@ def app():
 
 
 @pytest.fixture
-def client(app):
+def client(app:'flask.Flask'):
     """Create a test client for the app in testing context."""
     return app.test_client()
 
 
 @pytest.fixture
-def test_df():
+def test_df() -> pd.DataFrame:
     # test dataset with two rows
     test_df = pd.DataFrame(
         [

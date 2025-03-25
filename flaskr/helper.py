@@ -40,3 +40,8 @@ def json2df(json_str: str) -> pd.DataFrame:
         Returns the datafarme corresponding to a json string
     """
     return pd.read_json(StringIO(json_str), orient='split')
+
+
+def is_production(config_dict: dict) -> bool:
+    # Return true if the current app hads prodcution settings
+    return config_dict.get('CONFIG_TYPE', "") == 'production'

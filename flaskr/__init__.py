@@ -15,14 +15,15 @@ from dotenv import load_dotenv
 from flaskr.config.logging_config import setup_logging
 
 # Import blueprints
+from flaskr.helper import is_production
 from flaskr.landing import landing_bp
 from flaskr.game import game_bp
 from flaskr.training import training_bp
-from flaskr.config.flask_config import config_dict
+from flaskr.config.flask_config import config_dict, DevConfig
 
 
 # app factory
-def create_app(config_name:str='development') -> Flask:
+def create_app(config_name:str|None=None) -> Flask:
     """
     App factory to create Flask objects.
     config name is one of the allowed names in flask_config.py
@@ -34,15 +35,22 @@ def create_app(config_name:str='development') -> Flask:
     load_dotenv()  # for loading sensitive data
 
     ### App config
-    app.config.from_object(config_dict.get(config_name, "development"))
+    if config_name is not None:
+        config_name = os.environ.get('APP_TYPE', 'development')
     
-    if config_name == 'testing':
+    config_class = config_dict.get(config_name, DevConfig)
+    app.config.from_object(config_class)
+    
+    if app.config.get('CONFIG_NAME', "") == 'testing':
         app.testing=True
 
     ### Logging
     logs_dir = app.config['LOGS_DIR']
     log_level = app.config['LOGS_LEVEL']
-    os.makedirs(logs_dir, exist_ok=True) # Create logs directory if it doesn't exist
+    # Create logs directory if it doesn't exist but not in prod for vercel
+    if not is_production(app.config):
+        os.makedirs(logs_dir, exist_ok=True) 
+    
     setup_logging(logs_dir=logs_dir, log_level=log_level)
 
     ### Session

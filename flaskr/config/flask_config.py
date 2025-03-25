@@ -5,7 +5,8 @@ class Config:
     # Default settings shared between all configurations
 
     CONFIG_NAME = 'default'
-
+    CONFIG_TYPE = 'not production'  # In case multiple production config
+    
     # Data is stored in file server side because file could take a few Mb with sounds
     SESSION_TYPE = 'cachelib'
     SESSION_SERIALIZATION_FORMAT = 'json'
@@ -56,6 +57,7 @@ class DebugConfig(DevConfig):
 # For vercel hosting
 class VercelConfig(Config):
     CONFIG_NAME = 'vercel'
+    CONFIG_TYPE = 'production'  # In case multiple production config
     SESSION_FILE_DIR = '/tmp'
     LOGS_DIR = '/tmp'
 
