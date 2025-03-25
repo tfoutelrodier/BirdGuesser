@@ -36,7 +36,7 @@ def create_app(config_name:str|None=None) -> Flask:
 
     ### App config
     if config_name is not None:
-        config_name = os.environ.get('APP_TYPE', 'development')
+        config_name = os.environ.get('APP_TYPE', 'production')
     
     config_class = config_dict.get(config_name, DevConfig)
     app.config.from_object(config_class)
