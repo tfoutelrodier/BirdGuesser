@@ -3,7 +3,11 @@
 __pychache__
 flaskr/__pycache__
 flaskr/test.py
+flaskr/config/__pycache__
 flaskr/data/french_bird_data_test.csv
 tmp/
 .env
 .vercel
+pytest.ini
+logs/
+tests/__pycache__

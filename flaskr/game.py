@@ -11,6 +11,7 @@ import pandas as pd
 from flask import Blueprint, render_template, request, session, jsonify, current_app
 
 from flaskr import globals  # for api tracking
+from flaskr.helper import load_df_from_session, json2df
 
 game_bp = Blueprint('game', __name__)
 
@@ -48,19 +49,15 @@ def select_random_bird() -> str:
     """
     # load user dataset or random dataset if absent
     if 'user_data_df' in session:
-        # Had issues with loading from json only. Added a way to load them as dict
-        if isinstance(session['user_data_df'], dict):
-            df = pd.DataFrame.from_dict(session['user_data_df'])
-        else:
-            # If it's a string, use StringIO
-            df = pd.read_json(StringIO(session['user_data_df']), orient='split')
+        df = json2df(session['user_data_df'])
+        current_app.logger.info(f"loaded 'user_data_df' from session")
+        # df = load_df_from_session(key='user_data_df')
     elif 'data_df' in session:
-        if isinstance(session['data_df'], dict):
-            df = pd.DataFrame.from_dict(session['data_df'])
-        else:
-            # If it's a string, use StringIO
-            df = pd.read_json(StringIO(session['data_df']), orient='split')
+        df = json2df(session['data_df'])
+        current_app.logger.info(f"loaded 'data_df' from session")
+        # df = load_df_from_session(key='data_df')
     else:
+        current_app.logger.info(f"Coundn't load dataframe because missing session key")
         return "No loaded data found", 404
 
     bird_data = df.sample(n=1)
@@ -84,7 +81,7 @@ def get_bird_sound_url():
     user_ip = request.remote_addr
     current_time = time.time()
     last_request_time = globals.user_requests.get(user_ip, None)
-    api_rate_limit = current_app.config.get('API_TIME_WINDOW', 2)  # Issue with recovering the api_rate_limit at the moment, use this to et default
+    api_rate_limit = current_app.config.get('API_TIME_WINDOW', 1)  # Issue with recovering the api_rate_limit at the moment, use this to et default
     if last_request_time is not None:
         if current_time - last_request_time < api_rate_limit:
             # 429 is for rate limiting issues from what I saw

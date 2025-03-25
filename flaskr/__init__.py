@@ -9,6 +9,7 @@ import os
 
 from flask import Flask
 from flask_session import Session
+from cachelib.file import FileSystemCache  # to help configure session storage
 from dotenv import load_dotenv
 
 from flaskr.config.logging_config import setup_logging
@@ -22,6 +23,12 @@ from flaskr.config.flask_config import config_dict
 
 # app factory
 def create_app(config_name:str='development') -> Flask:
+    """
+    App factory to create Flask objects.
+    config name is one of the allowed names in flask_config.py
+    Allowed names are 'production, testing, development
+    """
+
     app = Flask(__name__)
 
     load_dotenv()  # for loading sensitive data
@@ -43,6 +50,15 @@ def create_app(config_name:str='development') -> Flask:
     session_folder = app.config['SESSION_FILE_DIR']
     if not os.path.isdir(session_folder):
         os.makedirs(session_folder)
+
+
+    # Set session dir properly using FileSystemCache from cachelib
+    session_cache = FileSystemCache(
+        cache_dir=app.config['SESSION_FILE_DIR'], 
+        threshold=app.config['SESSION_FILE_THRESHOLD'],
+        default_timeout=app.config['SESSION_TIMEOUT_SECONDS']
+    )
+    app.config['SESSION_CACHELIB'] = session_cache
 
     # Initialize Flask-Session
     Session(app)
