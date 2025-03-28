@@ -52,7 +52,7 @@ def test_json2df():
     )
     test_str = '{"columns":["test_col"],"index":[0],"data":[["this_is_a_test"]]}'
     pd.testing.assert_frame_equal(test_df, json2df(test_str))
-    
+
 
 def test_df2json():
     from flaskr.helper import df2json
@@ -63,3 +63,8 @@ def test_df2json():
     )
     test_str = '{"columns":["test_col"],"index":[0],"data":[["this_is_a_test"]]}'
     assert df2json(test_df) == test_str
+
+
+def test_is_production_not_prod(app):
+    from flaskr.helper import is_production
+    assert is_production(app.config) == False

@@ -5,6 +5,7 @@ Set up the flask server to have a queryable database with an API for bird guesse
 # Start the server using flask --app flaskr run --debug
 """
 
+import logging
 import os
 
 from flask import Flask
@@ -35,9 +36,10 @@ def create_app(config_name:str|None=None) -> Flask:
     load_dotenv()  # for loading sensitive data
 
     ### App config
-    if config_name is not None:
+    if config_name is None:
         config_name = os.environ.get('APP_TYPE', 'production')
     
+
     config_class = config_dict.get(config_name, DevConfig)
     app.config.from_object(config_class)
     
@@ -49,7 +51,12 @@ def create_app(config_name:str|None=None) -> Flask:
     log_level = app.config['LOGS_LEVEL']
     # Create logs directory if it doesn't exist but not in prod for vercel
     if not is_production(app.config):
-        os.makedirs(logs_dir, exist_ok=True) 
+        os.makedirs(logs_dir, exist_ok=True)
+    else:
+        # This if satement doesn't do much but is kept due to older versions having bugs when deploying to vercel. 
+        # Changes should have fixed the issue 
+        if not os.path.isdir(logs_dir):
+            os.makedirs(logs_dir, exist_ok=True)
     
     setup_logging(logs_dir=logs_dir, log_level=log_level)
 

@@ -13,7 +13,7 @@ from flaskr import create_app
 @pytest.fixture
 def app() -> 'flask.Flask':
     """Create and configure a Flask app for testing."""
-    app = create_app('testing')
+    app = create_app('production')
 
     # use yield for furture teardown code below this line
     yield app
