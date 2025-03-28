@@ -6,7 +6,7 @@ class Config:
 
     CONFIG_NAME = 'default'
     CONFIG_TYPE = 'not production'  # In case multiple production config
-    
+
     # Data is stored in file server side because file could take a few Mb with sounds
     SESSION_TYPE = 'cachelib'
     SESSION_SERIALIZATION_FORMAT = 'json'
@@ -30,7 +30,7 @@ class Config:
 
     # logging
     LOGS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'logs')
-    LOG_LEVEL = logging.INFO  # logging package default log levels
+    LOGS_LEVEL = logging.INFO  # logging package default log levels
 
 
 # for testing
@@ -59,7 +59,7 @@ class VercelConfig(Config):
     CONFIG_NAME = 'vercel'
     CONFIG_TYPE = 'production'  # In case multiple production config
     SESSION_FILE_DIR = '/tmp'
-    LOGS_DIR = '/tmp'
+    LOGS_DIR = os.path.join('/tmp', 'logs')
 
 
 # How to access each config

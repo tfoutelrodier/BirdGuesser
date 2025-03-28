@@ -6,13 +6,13 @@ import sys
 import pandas as pd
 import pytest
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from flaskr import db
 
 # add data_path as a keyword args to test for this file
 @pytest.fixture
 def data_path() -> pathlib.Path:
-    return pathlib.Path(os.path.dirname(__file__)) / 'test_data' / 'test_bird_data.csv'
+    return pathlib.Path(os.path.dirname(__file__)) / '..' / 'data' / 'test_bird_data.csv'
 
 
 def test_load_random_rows_from_csv(data_path: pathlib.Path) -> None:

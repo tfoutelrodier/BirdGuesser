@@ -11,3 +11,7 @@ tmp/
 pytest.ini
 logs/
 tests/__pycache__
+tests/unit_tests/__pycache__
+tests/integration_tests/__pycache__
+tests/production_tests/__pycache__
+
