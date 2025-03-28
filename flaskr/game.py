@@ -55,9 +55,14 @@ def select_random_bird() -> str:
         user_set_name = session['user_set_name']
         current_app.logger.info(f"Using {user_set_name} set from session.")
     else:
+<<<<<<< HEAD
         current_app.logger.info(f"No user table, using all birds by default")
     
     bird_id, bird_name, sound_url = select_bird_from_table(table_name, random=True)
+=======
+        current_app.logger.info(f"Couldn't load dataframe because missing session key")
+        return "No loaded data found", 404
+>>>>>>> 651452a (Fix bug when loading data in production)
 
     # check if data was actually selected
     if bird_id is None or bird_name is None:
