@@ -57,7 +57,7 @@ def select_random_bird() -> str:
         current_app.logger.info(f"loaded 'data_df' from session")
         # df = load_df_from_session(key='data_df')
     else:
-        current_app.logger.info(f"Coundn't load dataframe because missing session key")
+        current_app.logger.info(f"Couldn't load dataframe because missing session key")
         return "No loaded data found", 404
 
     bird_data = df.sample(n=1)
