@@ -8,19 +8,20 @@ Set up the flask server to have a queryable database with an API for bird guesse
 import logging
 import os
 
-from flask import Flask
-from flask_session import Session
 from cachelib.file import FileSystemCache  # to help configure session storage
 from dotenv import load_dotenv
+from flask import Flask
+from flask_session import Session
 
 from flaskr.config.logging_config import setup_logging
-
-# Import blueprints
+from flaskr.db import close_db
 from flaskr.helper import is_production
+from flaskr.config.flask_config import config_dict, DevConfig
+
+# blueprints
 from flaskr.landing import landing_bp
 from flaskr.game import game_bp
 from flaskr.training import training_bp
-from flaskr.config.flask_config import config_dict, DevConfig
 
 
 # app factory
@@ -35,16 +36,17 @@ def create_app(config_name:str|None=None) -> Flask:
 
     load_dotenv()  # for loading sensitive data
 
+
     ### App config
     if config_name is None:
         config_name = os.environ.get('APP_TYPE', 'production')
     
-
     config_class = config_dict.get(config_name, DevConfig)
     app.config.from_object(config_class)
     
     if app.config.get('CONFIG_NAME', "") == 'testing':
         app.testing=True
+
 
     ### Logging
     logs_dir = app.config['LOGS_DIR']
@@ -60,12 +62,12 @@ def create_app(config_name:str|None=None) -> Flask:
     
     setup_logging(logs_dir=logs_dir, log_level=log_level)
 
+
     ### Session
     # create session dir if needed
     session_folder = app.config['SESSION_FILE_DIR']
     if not os.path.isdir(session_folder):
         os.makedirs(session_folder)
-
 
     # Set session dir properly using FileSystemCache from cachelib
     session_cache = FileSystemCache(
@@ -78,7 +80,15 @@ def create_app(config_name:str|None=None) -> Flask:
     # Initialize Flask-Session
     Session(app)
 
+
+    ### Teardown procedure
+    # Close db connection
+    app.teardown_appcontext(close_db)
+
+
+    ## Api requests 
     request_logs = {}
+
 
     ### Blueprints setup
     # Register blueprints
@@ -86,4 +96,5 @@ def create_app(config_name:str|None=None) -> Flask:
     app.register_blueprint(game_bp, url_prefix='/game')
     app.register_blueprint(training_bp, url_prefix='/training')
 
+    logging.info("Flask app initialised")
     return app

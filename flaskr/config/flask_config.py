@@ -15,7 +15,9 @@ class Config:
     SESSION_PERMANENT = False
     SESSION_TIMEOUT_SECONDS = 3600  # set session to expire after X second to free some space
     
-    
+    # Bird database information
+    BIRD_DB = os.path.join(os.path.dirname(__file__), '..', 'data', 'bird_db.db')
+
     # for deployement specific configurations
     # for example, vercel needs different session storing path than local hosting
     HOSTING = os.getenv('HOSTING')
