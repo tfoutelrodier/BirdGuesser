@@ -40,3 +40,18 @@
     font-weight: bold;
     transition: background-color 0.3s, color 0.3s;
 }
+
+.list-container {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+    width: 300px;
+}
+.list-item {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+}
+.list-item:last-child {
+    border-bottom: none;
+}
