@@ -2,8 +2,96 @@ import csv
 import logging
 import os
 
-from sqlalchemy import create_engine, inspect
+from sqlalchemy import create_engine, text
 from sqlalchemy import Table, Column, Integer, String, MetaData
+from sqlalchemy.orm import scoped_session, sessionmaker
+
+
+def create_commom_bird_set(
+    engine:'sqlalchemy.engine.Engine',
+    metadata_obj:MetaData
+                          ) -> None:
+    """
+    Create a 'commom birds' dataset in the database
+    Add data to both 'user_sets' and 'birds_in_set' table in accordance
+    """
+    common_bird_names = [
+        'Common Chaffinch',
+        'Common Wood Pigeon',
+        'Dunnock',
+        'Common Blackbird',
+        'Eurasian Blackcap',
+        'Eurasian Bullfinch',
+        'Eurasian Collared Dove',
+        'Western Jackdaw',
+        'Eurasian Jay',
+        'Eurasian Magpie',
+        'Eurasian Nuthatch',
+        'Eurasian Siskin',
+        'Eurasian Wren',
+        'European Greenfinch',
+        'European Goldfinch',
+        'European Robin',
+        'Common Starling',
+        'European Green Woodpecker',
+        'Great Spotted Woodpecker',
+        'Hawfinch',
+        "House Sparrow",
+        "Eurasian Blue Tit",
+        "Coal Tit",
+        "European Crested Tit",
+        "Great Tit",
+        "Long-tailed Tit",
+        "Marsh Tit",
+        "Willow Tit",
+        "Yellowhammer"
+    ]
+
+    user_set_table = metadata_obj.tables['user_sets']
+    birds_in_sets_table = metadata_obj.tables['birds_in_set']
+
+    # Create the set
+    logging.info("Creating 'common_birds' set")
+    set_data = [{'set_name':'common_birds'}]
+    with engine.connect() as conn:
+        insert_data = user_set_table.insert().values(set_data)
+        conn.execute(insert_data)
+        conn.commit()
+
+    # Fill the set
+    db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
+    
+    set_id_query = text(
+        "SELECT id from user_sets WHERE set_name = 'common_birds'"
+    )
+    common_bird_set_id = db_session.execute(set_id_query).first().id
+
+    bird_data_lst = []
+    for bird_name in common_bird_names:
+        bird_name_lower = bird_name.lower()
+        query = text(
+                f"SELECT id FROM birds WHERE en = '{bird_name_lower}'"
+        )
+        response = db_session.execute(query)
+        try:
+            bird_id = response.first().id
+        except:
+            logging.error(f"Couldn't find {bird_name_lower} in birds table")
+            raise KeyError(f"Couldn't find {bird_name_lower} in birds table")
+
+        row_dict = {
+            'bird_id':bird_id,
+            'set_id':common_bird_set_id
+        }
+        bird_data_lst.append(row_dict)
+    
+    db_session.close()
+
+    logging.info("Loading birds data in birds_in_set table for common birds")
+    with engine.connect() as conn:
+        insert_data = birds_in_sets_table.insert().values(bird_data_lst)
+        conn.execute(insert_data)
+        conn.commit()
 
 
 def load_bird_data_in_database(
@@ -44,7 +132,10 @@ def load_bird_data_in_database(
         for key in ['id', 'gen', 'sp', 'en', 'lat', 'lng', 'url', 'file', 'file_name']:
             if key not in row_dict:
                 logging.error(f"Expected key {key} not found for data {row_dict}")
-    
+        
+        # put english name in lower case to make it easier to search
+        row_dict['en'] = row_dict['en'].lower()
+
     # Write the data
     logging.info('inserting data into birds table')
     with engine.connect() as conn:
@@ -109,6 +200,7 @@ def create_database(
 
     load_bird_data_in_database(data_file, data_file_separator, metadata_obj, engine)
 
+    create_commom_bird_set(engine, metadata_obj)
 
 
 if __name__ == '__main__':
