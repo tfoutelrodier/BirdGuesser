@@ -5,6 +5,7 @@ flaskr/__pycache__
 flaskr/test.py
 flaskr/config/__pycache__
 flaskr/data/french_bird_data_test.csv
+flaskr/data/birds_db.db
 tmp/
 .env
 .vercel
@@ -14,4 +15,4 @@ tests/__pycache__
 tests/unit_tests/__pycache__
 tests/integration_tests/__pycache__
 tests/production_tests/__pycache__
-
+.gitignore
