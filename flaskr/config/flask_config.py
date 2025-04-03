@@ -16,7 +16,9 @@ class Config:
     SESSION_TIMEOUT_SECONDS = 3600  # set session to expire after X second to free some space
     
     # Bird database information
-    BIRD_DB = os.path.join(os.path.dirname(__file__), '..', 'data', 'bird_db.db')
+    DB_FILE = os.path.join(os.path.dirname(__file__), '..', 'data', 'birds_db.db')
+    BIRD_DATA_FILE = os.path.join(os.path.dirname(__file__), '..', 'data', 'french_bird_data.csv')
+    BIRD_DATA_FILESEP = "|"
 
     # for deployement specific configurations
     # for example, vercel needs different session storing path than local hosting
@@ -62,6 +64,7 @@ class VercelConfig(Config):
     CONFIG_TYPE = 'production'  # In case multiple production config
     SESSION_FILE_DIR = '/tmp'
     LOGS_DIR = os.path.join('/tmp', 'logs')
+    DB_FILE = os.path.join('/tmp', 'birds_db.db')
 
 
 # How to access each config

@@ -3,11 +3,11 @@ import csv
 import logging
 import random
 
+from dataclasses import dataclass
 import pandas as pd
 from flask import app, g, current_app
 from sqlalchemy import create_engine, text, Column, Integer, String
-from sqlalchemy.orm import sessionmaker, scoped_session
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, scoped_session, declarative_base
 
 
 def load_random_rows_from_csv(filepath:pathlib.Path, nb_rows=100) -> pd.DataFrame:
@@ -46,34 +46,93 @@ def load_bird_names(filepath: pathlib.Path) -> list[str]:
     return bird_names
 
 
-def get_bird_data(filepath: pathlib.Path, bird_names: list[str]) -> pd.DataFrame:
-    # returns a dataframe with all data from a list of bird names
-    # input names should have a match in the 'en' column of the data (vernacular names)
-    
-    # avoid loading all the file at once
-    kept_rows = []
-    name_index = None
-
-    # sanitize bird names
-    bird_names_cleaned = [name.strip().lower() for name in bird_names]
-
-    with open(filepath, mode="r", encoding="utf-8") as file:
-        reader = csv.reader(file, delimiter="|")
-        header = next(reader)  # Read header
-        
-        for i, col_name in enumerate(header):
-            if col_name == 'en':
-                name_index = i
-        if name_index is not None:
-            for _, row in enumerate(reader, start=1):
-                if row[name_index].strip().lower() in bird_names_cleaned:
-                    kept_rows.append(row)
-    
-    return pd.DataFrame(kept_rows, columns=header) 
-
 ####
 # SQL base object format
 ####
+
+####
+# Database class
+####
+
+@dataclass
+class Database():
+    db_file_path: str
+
+
+    def init_db(self) -> None:
+        self.engine = create_engine(f"sqlite+pysqlite:///{self.db_file_path}")
+        self.db = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
+    
+
+    def close_db(self) -> None:
+        if self.engine:
+            self.engine.close()
+
+
+    def set_id_from_name(self, set_name: str) -> int|None:
+        # Return the id associanted to a given set name
+        # Returns None if the set doesn't exists
+        query = text(
+            "SELECT id, set_name FROM user_sets"
+        )
+        set_id = None
+        results = self.db.execute(query)
+        for row in results:
+            if row.set_name == set_name:
+                set_id = row.id
+        return set_id
+
+
+    def list_all_sets(self) -> list[str]:
+        # Return a list of all existing set names
+        query = text(
+            f"SELECT set_name FROM user_sets" 
+        )
+        results = self.db.execute(query)
+        set_lst = [row.set_name for row in results]
+        return set_lst
+        
+
+    def bird_id_from_name(self, bird_name: str) -> int|None:
+        """
+        Return the id of a bird from its name or None if bird doesn't exists
+        In case of multiple matches, return only the first match
+        """
+        
+        bird_id = None
+        query = text(
+            f"SELECT id FROM birds WHERE en = {bird_name} LIMIT 1"
+        )
+        results = self.db.execute(query)
+        bird_id = results.first().id
+        return bird_id
+
+
+    def list_birds_in_set(self, set_name: str|None=None) -> list[str]:
+        # Returns a list of all birds presetn in a given set.
+        # If set doesn't exist return an empty list
+        # If None, return all birds in 'birds' table
+        bird_lst = []
+
+        if set_name is None:
+            bird_lst = get_all_birds()
+        else:
+            set_id = get_user_set_id(set_name)
+        
+            if set_id is None:
+                return []
+            
+            query = text(
+                f"""
+                SELECT birds.bird_name as name FROM birds_in_set set
+                LEFT JOIN birds on birds.id = set.bird_id
+                WHERE set.set_id = {set_id} 
+                """
+            )
+            results = db.execute(query)
+            bird_lst = [row.name for row in results]
+        return bird_lst
+
 
 class UserSet(declarative_base()):
     """
@@ -110,8 +169,8 @@ class BirdInSet(declarative_base()):
 def get_engine() -> 'sqlalchemy.engine.Engine':
     """ Create a single engine per request"""
     if 'db_engine' not in g:
-        g.engine = create_engine(f"sqlite+pysqlite:///{current_app.config['BIRD_DB']}")
-    return g.engine
+        g.db_engine = create_engine(f"sqlite+pysqlite:///{current_app.config['DB_FILE']}")
+    return g.db_engine
 
 
 def connect_to_database() -> 'sqlalchemy.orm.scoped_session':
@@ -120,18 +179,26 @@ def connect_to_database() -> 'sqlalchemy.orm.scoped_session':
     Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     return scoped_session(Session)
 
+# def connect_to_database() -> Database:
+#     """ Create a Datbase object and connect it to the database"""
+#     db = Database(db_file_path=current_app.config['DB_FILE'])
+#     db.init_db()
+#     return db
+
 
 def get_db() -> 'sqlalchemy.orm.scoped_session':
     # return the same connection to database within a request
     if 'db' not in g:
         g.db = connect_to_database()
-
     return g.db
 
 
-def close_db(error=None):
-    """Close database session at the end of app run"""
-    db_session = g.pop('db_session', None)
+def close_db(e=None):
+    """
+    Close database session at the end of app run
+    e argument is required, it throws an error if not present.
+    """
+    db_session = g.pop('db', None)
     
     if db_session is not None:
         db_session.close()
@@ -149,10 +216,9 @@ def get_user_set_id(set_name:str) -> int|None:
     set_id = None
     results = db.execute(query)
     for row in results:
-        if row['set_name'] == set_name:
-            set_id = row['id']
+        if row.set_name == set_name:
+            set_id = row.id
     return set_id
-
 
 
 def get_bird_sound_url_from_name(bird_name: str, table_name: str = 'birds') -> str|None:
@@ -162,12 +228,12 @@ def get_bird_sound_url_from_name(bird_name: str, table_name: str = 'birds') -> s
     """
     db = get_db()
     query = text(
-        "SELECT file FROM :bird_name WHERE en = :bird_name ORDER BY RANDOM() LIMIT 1" 
+        f"SELECT file FROM {table_name} WHERE en = {bird_name} ORDER BY RANDOM() LIMIT 1" 
     )
-    result = db.execute(query, {"table_name":table_name, "bird_name":bird_name})
+    result = db.execute(query)
     
     if result:
-        url = result.first()._as_dict()['file']
+        url = result.first().file
     else:
         url = None
     return url
@@ -179,17 +245,17 @@ def select_bird_from_table(table_name: str='birds', random: bool=False) -> tuple
     Return the corresponding name
     """
     db = get_db()
-    query_str = f"SELECT id, en, file FROM :table_name"
+    query_str = f"SELECT id, en, file FROM {table_name}"
     if random:
         query_str += " ORDER BY RANDOM()"
     else:
         query_str += " LIMIT 1"
     query = text(query_str)
 
-    result = db.execute(query, {"table_name":table_name})
+    result = db.execute(query)
     
     if result:
-        result_dict = result.first()._as_dict()
+        result_dict = result.first()._asdict()
         bird_name = result_dict.get('en')
         bird_id = result_dict.get('id')
         sound_url = result_dict.get('file', None)
@@ -209,12 +275,12 @@ def get_all_birds() -> list[str]:
     query = text(
         f"SELECT en FROM birds" 
     )
-    result = db.execute(query)
+    results = db.execute(query)
     
     bird_name_lst = []
-    if result:
-        for row in result:
-            bird_name_lst.append(row['en'])
+    if results:
+        for row in results:
+            bird_name_lst.append(row.en)
     return bird_name_lst
 
 
@@ -240,10 +306,10 @@ def get_bird_id_from_name(bird_name: str) -> int:
     db = get_db()
 
     query = text(
-        "SELECT id FROM birds WHERE en = :bird_name LIMIT 1"
+        f"SELECT id FROM birds WHERE en = {bird_name} LIMIT 1"
     )
-    results = db.execute(query, {'bird_name':bird_name})
-    bird_id = results[0]['id']
+    results = db.execute(query)
+    bird_id = results.first().id
     return bird_id
 
 
@@ -253,8 +319,6 @@ def add_bird_to_user_set(bird_name: str, set_name: str):
     create_dataset if needed
     """
     db = get_db()
-    set_exists = False
-
     set_id = get_user_set_id(set_name)
     
     # create set and get it's id if not existing
@@ -273,28 +337,32 @@ def add_bird_to_user_set(bird_name: str, set_name: str):
     logging.info(f"Added {new_bird_in_set.bird_id} to set {new_bird_in_set.set_id} with id {new_bird_in_set.id}")
 
 
-def get_birds_from_set(set_name: str) -> list[str]:
+def get_birds_from_set(set_name: str|None) -> list[str]:
     """
     Given a user bird set name, return a list of all bird names in this set
     Returns an empty list if the set doesn't exist
     """
     db = get_db()
-    set_id = get_user_set_id(set_name)
     bird_lst = []
-
-    if set_id is None:
-        return []
+    if set_name is None:
+        bird_lst = get_all_birds()
+    else:
+        set_id = get_user_set_id(set_name)
     
-    query = text(
-        """
-        SELECT birds.bird_name as name FROM birds_in_set set
-        LEFT JOIN birds on birds.id = set.bird_id
-        WHERE set.set_id = :set_id  
-        """
-    )
-    results = db.execute(query, {'set_id':set_id})
-    bird_lst = [row['name'] for row in results]
+        if set_id is None:
+            return []
+        
+        query = text(
+            f"""
+            SELECT birds.bird_name as name FROM birds_in_set set
+            LEFT JOIN birds on birds.id = set.bird_id
+            WHERE set.set_id = {set_id} 
+            """
+        )
+        results = db.execute(query)
+        bird_lst = [row.name for row in results]
     return bird_lst
+
 
 
 

@@ -7,7 +7,8 @@ import sys
 import pytest
 import pandas as pd
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, root_dir)
 from flaskr import create_app
 
 @pytest.fixture

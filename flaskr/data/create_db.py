@@ -5,19 +5,68 @@ import os
 from sqlalchemy import create_engine, inspect
 from sqlalchemy import Table, Column, Integer, String, MetaData
 
-if __name__ == '__main__':
-    script_dir = os.path.dirname(__file__)
-    db_sql_file = os.path.join(script_dir, 'birds_schema.sql')
-    database_file = os.path.join(script_dir, 'birds_db.db')
 
-    bird_data_file = os.path.join(script_dir, 'french_bird_data.csv')
-    bird_data_file_sep = "|"
+def load_bird_data_in_database(
+        data_file:str,
+        data_file_separator:str,
+        metadata_obj:MetaData,
+        engine:'sqlalchemy.engine.Engine'
+                                ) -> None:
+    """
+    Load all birds data into the birds table
+    """
+    birds_table = metadata_obj.tables['birds']
 
-    logging.info(f'Logging to database {database_file}')
-    engine = create_engine(f"sqlite+pysqlite:///{database_file}", echo=True)
+    # load bird data into a list of dict to insert efficiently into the birds table
+    birds_data = []
+    with open(data_file, 'r') as csv_file:
+        csv_reader = csv.DictReader(csv_file, delimiter=data_file_separator)
+            
+        # Add each row to our data list
+        for row in csv_reader:
+            birds_data.append(row)
+
+    # Make sure that there is no '-' in dict key    
+    keys_to_rename = []
+    for key in birds_data[0]:
+        if key != key.replace('-', '_'):
+            keys_to_rename.append(key)
+    
+    if len(keys_to_rename) > 0:
+        logging.info('replacing some keys to avoid problematic character in col names')
+        for key in keys_to_rename:
+            for row_dict in birds_data:
+                row_dict[key.replace('-','_')] = row_dict.pop(key)
+
+    # check that all cols have the required keys
+    logging.info("Checking that all entries have the required colums")
+    for row_dict in birds_data:
+        for key in ['id', 'gen', 'sp', 'en', 'lat', 'lng', 'url', 'file', 'file_name']:
+            if key not in row_dict:
+                logging.error(f"Expected key {key} not found for data {row_dict}")
+    
+    # Write the data
+    logging.info('inserting data into birds table')
+    with engine.connect() as conn:
+        insert_data = birds_table.insert().values(birds_data)
+        conn.execute(insert_data)
+        conn.commit()
+    logging.info('All data were loaded in the birds table')
+
+
+def create_database(
+        db_file:str,
+        data_file: str,
+        data_file_separator: str,
+        ):
+    """
+    Create the database with empty tables
+    Load the birds dataabse with all bird data
+    """
+    logging.info(f'Logging to database {db_file}')
+    engine = create_engine(f"sqlite+pysqlite:///{db_file}", echo=True)
 
     metadata_obj = MetaData()
-
     # main table with all data from birds
     birds_table = Table(
         'birds',
@@ -50,66 +99,35 @@ if __name__ == '__main__':
         Column('bird_id', Integer, nullable=False),
     )
 
+    logging.info(f'Creating missing tables')
+    table_lst = [birds_table, user_sets_table, birds_in_set_table]
+    # checkfirst onyl creates tables that don't already exist
+    metadata_obj.create_all(engine, tables=table_lst, checkfirst=True)
 
-    inspector = inspect(engine)
-    existing_tables = inspector.get_table_names()
-
-    table_dict = {
-        'birds': birds_table,
-        'user_sets': user_sets_table,
-        'birds_in_set': birds_in_set_table
-    }
-
-    tables_to_create = [table_obj for table_name, table_obj in table_dict.items() if table_name not in existing_tables]
-
-    if tables_to_create:
-        logging.info(f'Creating {len(tables_to_create)} missing tables')
-        metadata_obj.create_all(engine, tables=[birds_table])
-    else:
-        logging.info('all required_table exist, not creating them again')
-    for table_name, table_obj in table_dict.items():
-        if table_name not in existing_tables:
-            logging.info('Creating the birds table')
-
-
-    # Update the metadata and get the table
+    # update the metadata
     metadata_obj.reflect(engine)
-    birds_table = metadata_obj.tables['birds']
 
-    # load bird data into a list of dict to insert efficiently into the birds table
-    birds_data = []
-    with open(bird_data_file, 'r') as csv_file:
-        csv_reader = csv.DictReader(csv_file, delimiter=bird_data_file_sep)
-            
-        # Add each row to our data list
-        for row in csv_reader:
-            birds_data.append(row)
+    load_bird_data_in_database(data_file, data_file_separator, metadata_obj, engine)
 
-    # Make sure that there is no '-' in dict key    
-    keys_to_rename = []
-    for key in birds_data[0]:
-        if key != key.replace('-', '_'):
-            keys_to_rename.append(key)
-    
-    if len(keys_to_rename) > 0:
-        logging.info('replacing some keys to avoid problematic character in col names')
-        for key in keys_to_rename:
-            for row_dict in birds_data:
-                row_dict[key.replace('-','_')] = row_dict.pop(key)
 
-    # check that all cols have the required keys
-    logging.info("Checking that all entries have the required colums")
-    for row_dict in birds_data:
-        for key in ['id', 'gen', 'sp', 'en', 'lat', 'lng', 'url', 'file', 'file_name']:
-            if key not in row_dict:
-                logging.error(f"Expected key {key} not found for data {row_dict}")
-    
-    # Write the data
-    logging.info('inserting data into birds table')
-    with engine.connect() as conn:
-        insert_data = birds_table.insert().values(birds_data)
-        conn.execute(insert_data)
-        conn.commit()
+
+if __name__ == '__main__':
+    script_dir = os.path.dirname(__file__)
+    # db_sql_file = os.path.join(script_dir, 'birds_schema.sql')
+    database_file = os.path.join(script_dir, 'birds_db.db')
+
+    bird_data_file = os.path.join(script_dir, 'french_bird_data.csv')
+    bird_data_file_sep = "|"
+
+    if not os.path.isfile(database_file):
+        print("Creating the dataabse and loading bird data")
+        create_database(
+            db_file=database_file,
+            data_file=bird_data_file,
+            data_file_separator=bird_data_file_sep
+                       )
+    else:
+        print("Database file already exists, exiting")
 
 
     # # Store birds data into the database

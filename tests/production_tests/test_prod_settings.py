@@ -6,7 +6,8 @@ import pandas as pd
 from flask.testing import FlaskClient
 from flaskr import create_app
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, root_dir)
 
 
 def test_is_production_prod(app):

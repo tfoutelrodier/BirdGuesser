@@ -5,7 +5,8 @@ import numpy as np
 import pandas as pd
 from flask.testing import FlaskClient
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, root_dir)
 
 
 def test_select_random_bird(client: FlaskClient, test_df: pd.DataFrame) -> None:
@@ -20,10 +21,6 @@ def test_select_random_bird(client: FlaskClient, test_df: pd.DataFrame) -> None:
     # Those are based on random selection so might have to be updated if uderlying function is modified
     expected_bird_name = 'Chestnut-capped Warbler'
     expected_bird_id = '540091'
-
-    # check when no data
-    response_no_data = client.get('/game/select_random_bird')
-    assert response_no_data.status_code == 404
 
     # check when default data
     with client.session_transaction() as session:

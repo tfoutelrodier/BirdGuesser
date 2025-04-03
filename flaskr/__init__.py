@@ -14,6 +14,7 @@ from flask import Flask
 from flask_session import Session
 
 from flaskr.config.logging_config import setup_logging
+from flaskr.data.create_db import create_database
 from flaskr.db import close_db
 from flaskr.helper import is_production
 from flaskr.config.flask_config import config_dict, DevConfig
@@ -80,6 +81,16 @@ def create_app(config_name:str|None=None) -> Flask:
     # Initialize Flask-Session
     Session(app)
 
+
+    ### Database
+    # setup if doesn't exist
+    database_file = app.config['DB_FILE']
+    if not os.path.isfile(database_file):
+        create_database(
+            db_file=database_file,
+            data_file=app.config['BIRD_DATA_FILE'],
+            data_file_separator=app.config['BIRD_DATA_FILESEP']
+        )
 
     ### Teardown procedure
     # Close db connection
