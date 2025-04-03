@@ -55,3 +55,46 @@
 .list-item:last-child {
     border-bottom: none;
 }
+
+/* user set management */
+.input-group {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+}
+.input-group input {
+    flex-grow: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+button {
+    padding: 8px 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+button:hover {
+    background-color: #45a049;
+}
+#birdNameList {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    min-height: 200px;
+}
+.list-item {
+    padding: 8px;
+    margin: 5px 0;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+}
+.remove-btn {
+    background-color: #f44336;
+    padding: 2px 8px;
+    font-size: 12px;
+}

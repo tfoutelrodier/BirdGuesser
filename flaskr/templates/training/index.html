@@ -37,11 +37,25 @@
     </audio>
 {% endblock %}
 
+{% block right_top %}
+    <h2>Custom set manager</h2>
+        
+    <div class="input-group">
+        <input type="text" id="setNameInput" placeholder="Enter set name">
+        <button id="loadSetBtn">Load Set</button>
+        <button id="createSetBtn">Create New Set</button>
+    </div>
 
-{% block right_mid %}
-    <h2>Featured Bird</h2>
-    <img src="{{ url_for('static', filename='assets/raven.jpg') }}" alt="Ravec">
-    <p>Common raven (Corvus vorax)</p>
+    <div class="input-group">
+        <input type="text" id="elementInput" placeholder="Enter new element">
+        <button id="addElementBtn">Add Element</button>
+    </div>
+
+    <h3>Current Set: <span id="currentSetName">None</span></h3>
+
+    <div id="birdNameList">
+        <p id="emptyMessage">No elements in the current set.</p>
+    </div>
 {% endblock %}
 
 

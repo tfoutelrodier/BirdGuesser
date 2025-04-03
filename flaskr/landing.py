@@ -8,13 +8,8 @@ import pathlib
 
 from flask import Blueprint, render_template, session, current_app
 
-<<<<<<< HEAD
-from flaskr.db import load_random_rows_from_csv, load_bird_names, get_all_birds
-from flaskr.helper import store_dataframe_in_session
-=======
 from flaskr.db import load_random_rows_from_csv, load_bird_names
 from flaskr.helper import df2json
->>>>>>> 651452a (Fix bug when loading data in production)
 
 landing_bp = Blueprint('landing', __name__)
 
@@ -22,9 +17,6 @@ landing_bp = Blueprint('landing', __name__)
 def index():
     """landing/home page with default informations"""
 
-<<<<<<< HEAD
-    # load all birds for autocomplete purpose
-=======
     # initialise some state (better to move them to )
 
     data_path = pathlib.Path(current_app.root_path).joinpath('data').joinpath('french_bird_data.csv')
@@ -37,7 +29,6 @@ def index():
         data_df = load_random_rows_from_csv(data_path, 20)
         session['data_df'] = df2json(data_df)
 
->>>>>>> 651452a (Fix bug when loading data in production)
     if 'bird_name_list' not in session:
         session['bird_name_list'] = get_all_birds()
 
