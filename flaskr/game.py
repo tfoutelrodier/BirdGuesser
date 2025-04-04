@@ -12,8 +12,7 @@ import pandas as pd
 from flask import Blueprint, render_template, request, session, jsonify, current_app
 
 from flaskr import globals  # for api tracking
-from flaskr.helper import load_df_from_session, json2df
-from flaskr.db import select_bird_from_table
+from flaskr.db import get_db
 
 game_bp = Blueprint('game', __name__)
 
@@ -44,7 +43,7 @@ def index():
 
 
 @game_bp.route('/select_random_bird', methods=['GET'])
-def select_random_bird() -> str:
+def select_random_bird():
     """
     Select a random element from current loaded data 
     Store it in the session (update if needed)
@@ -55,14 +54,20 @@ def select_random_bird() -> str:
         user_set_name = session['user_set_name']
         current_app.logger.info(f"Using {user_set_name} set from session.")
     else:
-        current_app.logger.info(f"No user table, using all birds by default")
+        current_app.logger.info(f"No user set defined, using common_birds by default")
+        user_set_name = "common_birds"
     
-    bird_id, bird_name, sound_url = select_bird_from_table(table_name, random=True)
-
+    db = get_db()
+    random_bird =  db.get_random_bird_from_set(user_set_name)
+    
     # check if data was actually selected
-    if bird_id is None or bird_name is None:
-        logging.error(f"Couldn't load bird data from table {table_name}")
+    if random_bird is None:
+        logging.error(f"Couldn't load a bird from user_set {user_set_name}")
         return "", 404
+    
+    bird_id = random_bird.id
+    bird_name = random_bird.en
+    sound_url = random_bird.file
 
     # construct the link manually if missing for some reason
     if sound_url is None:
@@ -73,6 +78,8 @@ def select_random_bird() -> str:
     session['bird_id'] = bird_id
     session['bird_sound_file'] = sound_url 
     return "", 200
+
+
 
 
 # @game_bp.route('/select_random_bird', methods=['GET'])

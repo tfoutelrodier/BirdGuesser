@@ -45,7 +45,6 @@ class TestConfig(Config):
     DEBUG = True
     LOGS_LEVEL = logging.DEBUG
 
-
 # Standard config when coding
 class DevConfig(Config):
     CONFIG_NAME = 'development'

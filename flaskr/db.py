@@ -9,6 +9,9 @@ from flask import app, g, current_app
 from sqlalchemy import create_engine, text, Column, Integer, String
 from sqlalchemy import delete
 from sqlalchemy.orm import sessionmaker, scoped_session, declarative_base
+from sqlalchemy.engine import Engine, Row
+
+from .db_models import Bird, UserSet
 
 
 def load_random_rows_from_csv(filepath:pathlib.Path, nb_rows=100) -> pd.DataFrame:
@@ -53,31 +56,29 @@ def load_bird_names(filepath: pathlib.Path) -> list[str]:
 
 @dataclass
 class Database():
-    db_file_path: str
+    engine: Engine
 
-
-    def init_db(self) -> None:
-        self.engine = create_engine(f"sqlite+pysqlite:///{self.db_file_path}")
+    def __post_init__(self) -> None:
         self.db = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=self.engine))
 
 
     def close_db(self) -> None:
         if self.engine:
-            self.engine.close()
+            self.engine.dispose()
 
 
-    def set_id_from_name(self, set_name: str) -> int|None:
-        # Return the id associanted to a given set name
-        # Returns None if the set doesn't exists
-        query = text(
-            "SELECT id, set_name FROM user_sets"
-        )
-        set_id = None
-        results = self.db.execute(query)
-        for row in results:
-            if row.set_name == set_name:
-                set_id = row.id
-        return set_id
+    # def set_id_from_name(self, set_name: str) -> int|None:
+    #     # Return the id associanted to a given set name
+    #     # Returns None if the set doesn't exists
+    #     query = text(
+    #         "SELECT id, set_name FROM user_sets"
+    #     )
+    #     set_id = None
+    #     results = self.db.execute(query)
+    #     for row in results:
+    #         if row.set_name == set_name:
+    #             set_id = row.id
+    #     return set_id
 
 
     def list_all_sets(self) -> list[str]:
@@ -90,19 +91,40 @@ class Database():
         return set_lst
         
 
-    def bird_id_from_name(self, bird_name: str) -> int|None:
-        """
-        Return the id of a bird from its name or None if bird doesn't exists
-        In case of multiple matches, return only the first match
-        """
+    # def bird_id_from_name(self, bird_name: str) -> int|None:
+    #     """
+    #     Return the id of a bird from its name or None if bird doesn't exists
+    #     In case of multiple matches, return only the first match
+    #     """
         
-        bird_id = None
-        query = text(
-            f"SELECT id FROM birds WHERE en == {bird_name} LIMIT 1"
-        )
-        results = self.db.execute(query)
-        bird_id = results.first().id
-        return bird_id
+    #     bird_id = None
+    #     query = text(
+    #         f"SELECT id FROM birds WHERE en == {bird_name} LIMIT 1"
+    #     )
+    #     results = self.db.execute(query)
+    #     bird_id = results.first().id
+    #     return bird_id
+
+
+    def bird_name_from_id(self, bird_id:int) -> str|None:
+        """
+        Return a bird name from its birds table id
+        """
+        result = self.db.query(Bird.en).filter(Bird.id == bird_id).first()
+        if result:
+            return result.en
+        else:
+            return None
+
+
+    def list_all_birds(self) -> list[str]:
+        """
+        bird names are held within the 'en' column in databse
+        """
+        # Returns a list of all birds in the birds table
+        all_birds: list[Row] = self.db.query(Bird.en).all()
+        bird_name_lst = [row.en for row in all_birds]
+        return bird_name_lst
 
 
     def list_birds_in_set(self, set_name: str|None=None) -> list[str]:
@@ -110,75 +132,82 @@ class Database():
         # If set doesn't exist return an empty list
         # If None, return all birds in 'birds' table
         bird_lst = []
-
         if set_name is None:
-            bird_lst = get_all_birds()
+            logging.info("No set name provided, loading all birds")
+            bird_lst = self.list_all_birds()
         else:
-            set_id = get_user_set_id(set_name)
-        
-            if set_id is None:
+            user_set = self.db.query(UserSet).filter(UserSet.set_name == set_name).first()
+            if not user_set:
+                logging.error(f"Set '{set_name}' was not found")
                 return []
-            
-            query = text(
-                f"""
-                SELECT birds.bird_name as name FROM birds_in_set set
-                LEFT JOIN birds on birds.id == set.bird_id
-                WHERE set.set_id = {set_id} 
-                """
-            )
-            results = self.db.execute(query)
-            bird_lst = [row.name for row in results]
+
+            bird_obj_lst = user_set.birds
+            bird_lst = [bird.en for bird in bird_obj_lst]
+            logging.info(f"Loaded birds from '{set_name}'")
+        
         return bird_lst
 
 
     def delete_user_set(self, set_name:str) -> bool:
         """
-        Add a user set in the database.
-        Returns True if created successfully, False otherwise
+        Remove a user set from database.
+        Returns True if deleted of if set doesn't exist, False otherwise
         """
-        success = True
-        user_set_id = self.set_id_from_name(set_name)
-        
-        # only delete if set exists
-        if user_set_id is None:
-            return False
-
-        delete_set_content_query = text(
-            f"DELETE FROM birds_in_set WHERE set_id == '{user_set_id}'"
-        )
-
-        delete_set_query = text(
-            f"DELETE FROM user_sets WHERE id == '{user_set_id}'"
-        )
-
         try:
-            with self.engine.connect() as conn:
-                conn.execute(delete_set_content_query)
-                conn.execute(delete_set_query)
-                conn.commit()
-        except:
-            success = False
-        return success
+            set_to_delete = self.db.query(UserSet).filter(UserSet.set_name == set_name).first()
+
+            if not set_to_delete:
+                logging.info(f"Set '{set_name}' not found. skipping delete")
+            else:
+                self.db.delete(set_to_delete)
+                logging.info(f"Set '{set_name}' deleted")
+            return True
+        except Exception as e:
+            logging.error(f"Error when deleting set '{set_name}': {e}")
+            return False
+        # user_set_id = self.set_id_from_name(set_name)
+        
+        # # only delete if set exists
+        # if user_set_id is None:
+        #     return False
+
+        # delete_set_content_query = text(
+        #     f"DELETE FROM birds_in_set WHERE set_id == '{user_set_id}'"
+        # )
+
+        # delete_set_query = text(
+        #     f"DELETE FROM user_sets WHERE id == '{user_set_id}'"
+        # )
+
+        # try:
+        #     with self.engine.connect() as conn:
+        #         conn.execute(delete_set_content_query)
+        #         conn.execute(delete_set_query)
+        #         conn.commit()
+        # except:
+        #     success = False
+        # return success
 
 
-    def create_user_set(self, set_name:str) -> bool:
+    def create_user_set(self, set_name:str) -> UserSet:
         """
         create a user set in database
-        Returns True if successful, False otherwise
+        Returns the new set object or the existing set if the name is already taken 
         """
-        success = True
 
-        create_set_query = text(
-            f"INSERT INTO user_sets (set_name) VALUES ('{set_name}')"
-        )
-
-        try:
-            with self.engine.connect() as conn:
-                conn.execute(create_set_query)
-                conn.commit()
-        except:
-            success = False
-        return success
+        # create_set_query = text(
+        #     f"INSERT INTO user_sets (set_name) VALUES ('{set_name}')"
+        # )
+        
+        existing_set = self.db.query(UserSet).filter(UserSet.set_name == set_name).first()
+        if existing_set:
+            logging.info(f"${set_name} already exist, skipping creation")
+            return existing_set
+        
+        new_set = UserSet(set_name=set_name)
+        self.db.add(new_set)
+        logging.info(f"Create user set with name {set_name}")
+        return new_set
     
 
     def add_bird_in_set(self, bird_name:str, set_name:str) -> bool:
@@ -186,64 +215,73 @@ class Database():
         add a bird to a given user set
         Returns True if successful, False otherwise
         """
-        success = True
-        set_id = self.set_id_from_name(set_name)
-        bird_id = self.bird_id_from_name(bird_name)
-        # only add if both set and bird exists
-        if set_id is None or bird_id is None:
+
+        # query = text(
+        #     f"INSERT INTO birds_in_set (bird_id, set_id) VALUES ('{bird_id}', '{set_id}')"
+        # )
+
+        bird = self.db.query(Bird).filter(Bird.en == bird_name).first()
+        user_set = self.db.query(UserSet).filter(UserSet.set_name == set_name).first()
+
+        if not bird:
+            logging.error(f"Bird name {bird_name} was not found")
             return False
-
-        query = text(
-            f"INSERT INTO birds_in_set (bird_id, set_id) VALUES ('{bird_id}', '{set_id}')"
-        )
-
-        try:
-            with self.engine.connect() as conn:
-                conn.execute(query)
-                conn.commit()
-        except:
-            success = False
-        return success
-
+        elif not user_set:
+            logging.error(f"Set {set_name} was not found")
+            return False
+        
+        if bird in user_set.birds:
+            logging.info(f"{bird_name} is already in {set_name}. Skipping...")
+        else:
+            # the birds attribute created with relationship behaves similarly to a list
+            user_set.birds.append(bird)
+            logging.info(f"{bird_name} was added to {set_name}")
+        return True
 
 
-class UserSet(declarative_base()):
-    """
-    Represent a bird set from the user_set table
-    Useful for creation of new sets
-    """
-    __tablename__ = 'user_set'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    set_name = Column(String, nullable=False, unique=True)
+    def get_random_bird_from_set(self, set_name:str) -> Bird | None:
+        """
+        Select a random bird from a user set. 
+        Is set is None, select a random bird from the birds table instead
+        Returns None if no bird was found
+        """
+        user_set = self.db.query(UserSet).filter(UserSet.set_name == set_name).first()
+        if user_set is None:
+            logging.error(f"User set {set_name} not found ")
+            return None
+        elif not user_set.birds:
+            logging.error(f'No bird in set {set_name}')
+            return None
 
-    def __repr__(self):
-        return f"bird set: {self.set_name} with id: {self.id}"
-
-
-class BirdInSet(declarative_base()):
-    """
-    Represent a new bird in birds database.
-    This may not ever be used but there in case
-    """
-    __tablename__ = 'birds_in_set'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    set_id = Column(Integer, nullable=False)
-    bird_id = Column(String, nullable=False)
-
-    def __repr__(self):
-        return f"bird {self.bird_id} is present in set {self.set_id} with id {self.id}"
+        random_bird = random.choice(user_set.birds)
+        return random_bird
     
+
+    def get_bird(self, bird_name: str) -> Bird | None:
+        """
+        Returns a Bird object holding all bird data.
+        Returns None if no bird with this name was found
+        """
+        bird = self.db.query(Bird).filter(Bird.en == bird_name).first()
+        return bird
+
 
 ####
 # SQL function
 ####
 
 
-# def get_engine() -> 'sqlalchemy.engine.Engine':
-#     """ Create a single engine per request"""
-#     if 'db_engine' not in g:
-#         g.db_engine = create_engine(f"sqlite+pysqlite:///{current_app.config['DB_FILE']}")
-#     return g.db_engine
+def get_engine(db_file:str|None) -> Engine:
+    """
+    Create a single engine per request
+    Will look for app config database by default
+    """
+    if db_file is None:
+        db_file = current_app.config['DB_FILE']
+
+    if 'db_engine' not in g:
+        g.db_engine = create_engine(f"sqlite+pysqlite:///{db_file}")
+    return g.db_engine
 
 
 # def connect_to_database() -> 'sqlalchemy.orm.scoped_session':
@@ -252,11 +290,15 @@ class BirdInSet(declarative_base()):
 #     Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 #     return scoped_session(Session)
 
-def connect_to_database() -> Database:
-    """ Create a Datbase object and connect it to the database"""
-    db = Database(db_file_path=current_app.config['DB_FILE'])
-    db.init_db()
-    return db
+def connect_to_database(file:str|None=None) -> Database:
+    """
+    Create a Datbase object and connect it to the database
+    By default, read app config to look for db file to connect to
+    """
+    if file is None:
+        file = current_app.config['DB_FILE']
+    engine = get_engine(file)
+    return Database(engine)
 
 
 def get_db() -> Database:
@@ -266,7 +308,7 @@ def get_db() -> Database:
     return g.db
 
 
-def close_db(e=None):
+def close_db(e=None) -> None:
     """
     Close database session at the end of app run
     e argument is required, it throws an error if not present.
@@ -274,7 +316,7 @@ def close_db(e=None):
     db = g.pop('db', None)
     
     if db is not None:
-        db.close()
+        db.close_db()
 
 
 # def get_user_set_id(set_name:str) -> int|None:

@@ -5,10 +5,11 @@ Training mode is where you are tested on a set of bird you have defined
 
 Idea : create a table with all the records for the current session. Then select from it
 """
+import logging
 
 from flask import Blueprint, render_template, request, session, jsonify
 
-from flaskr.db import add_bird_to_user_set, get_all_birds, get_birds_from_set, get_db
+from flaskr.db import get_db
 # from werkzeug.security import check_password_hash, generate_password_hash
 
 # from db import get_db, create_profile_table
@@ -27,19 +28,18 @@ def index():
 
     if request.method == 'POST':
         # Avoid capitalization issue
-        bird_name = request.form.get('wantedBird', '').strip().lower()  
-        bird_data = get_bird_data(session['data_path'], [bird_name])
+        bird_name = request.form.get('wantedBird', '').strip().lower()
+
+        db = get_db() 
+        bird = db.get_bird(bird_name=bird_name)
         
-        # construct the link manually if missing for some reason
-        if bird_data.size == 0:
+        if bird is None:
+            logging.error(f"Bird '{bird_name}' is not in database.")
             return "Bird is not in database", 404
         
         session['bird_name'] = bird_name
-
-        if bird_data['file'].iloc[0] is not None:
-            session['bird_sound_file'] = bird_data['file'].iloc[0]
-        else:
-            session['bird_sound_file'] = f"https://www.xeno-canto.org/{str(bird_data['id'].iloc[0])}/download"
+        session['bird_sound_file'] = bird.file
+        
         song_url = session['bird_sound_file']  # THis could be done better, refactor later
 
     return render_template('training/index.html', 
@@ -64,10 +64,11 @@ def get_birds_in_set(set_name: str = None):
     Return a list of all birds in a set
     if no set name, return all birds
     """
+    db = get_db()
     if set_name is None:
-        bird_lst = get_all_birds() 
+        bird_lst = db.list_all_birds() 
     else:
-        bird_lst = get_birds_from_set(set_name)
+        bird_lst = db.list_birds_in_set(set_name)
     
     if bird_lst == []:
         return "bird set not found", 404

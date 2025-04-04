@@ -1,14 +1,21 @@
 import csv
 import logging
 import os
+import sys
 
 from sqlalchemy import create_engine, text
-from sqlalchemy import Table, Column, Integer, String, MetaData
+from sqlalchemy import MetaData
 from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.engine import Engine
+
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, root_dir)
+
+from flaskr.db_models import Base
 
 
 def create_commom_bird_set(
-    engine:'sqlalchemy.engine.Engine',
+    engine:Engine,
     metadata_obj:MetaData
                           ) -> None:
     """
@@ -98,7 +105,7 @@ def load_bird_data_in_database(
         data_file:str,
         data_file_separator:str,
         metadata_obj:MetaData,
-        engine:'sqlalchemy.engine.Engine'
+        engine:Engine
                                 ) -> None:
     """
     Load all birds data into the birds table
@@ -157,50 +164,15 @@ def create_database(
     logging.info(f'Logging to database {db_file}')
     engine = create_engine(f"sqlite+pysqlite:///{db_file}", echo=True)
 
-    metadata_obj = MetaData()
-    # main table with all data from birds
-    birds_table = Table(
-        'birds',
-        metadata_obj,
-        Column("id", Integer, primary_key=True, nullable=False),
-        Column('gen', String, nullable=False),
-        Column('sp', String, nullable=False),
-        Column('en', String, nullable=False),
-        Column('lat', String, nullable=True),
-        Column('lng', String, nullable=True),
-        Column('url', String, nullable=False),
-        Column('file', String, nullable=False),
-        Column('file_name', String, nullable=False),
-    )
+    try:
+        Base.metadata.create_all(engine)
+        logging.info("Database table successfully initialized")
+    except Exception as e:
+        logging.error(f"Something happened during database table set up: {e}")
 
-    # holds all existing user datasets
-    user_sets_table = Table(
-        'user_sets',
-        metadata_obj,
-        Column("id", Integer, primary_key=True, autoincrement=True),
-        Column('set_name', String, nullable=False, unique=True),
-    )
+    load_bird_data_in_database(data_file, data_file_separator, Base.metadata, engine)
 
-    # holds the composition of each dataset
-    birds_in_set_table = Table(
-        'birds_in_set',
-        metadata_obj,
-        Column('id', Integer, primary_key=True, autoincrement=True),
-        Column("set_id", Integer, nullable=False),
-        Column('bird_id', Integer, nullable=False),
-    )
-
-    logging.info(f'Creating missing tables')
-    table_lst = [birds_table, user_sets_table, birds_in_set_table]
-    # checkfirst onyl creates tables that don't already exist
-    metadata_obj.create_all(engine, tables=table_lst, checkfirst=True)
-
-    # update the metadata
-    metadata_obj.reflect(engine)
-
-    load_bird_data_in_database(data_file, data_file_separator, metadata_obj, engine)
-
-    create_commom_bird_set(engine, metadata_obj)
+    create_commom_bird_set(engine, Base.metadata)
 
 
 if __name__ == '__main__':
@@ -212,7 +184,7 @@ if __name__ == '__main__':
     bird_data_file_sep = "|"
 
     if not os.path.isfile(database_file):
-        print("Creating the dataabse and loading bird data")
+        print("Creating the database and loading bird data")
         create_database(
             db_file=database_file,
             data_file=bird_data_file,
@@ -220,36 +192,3 @@ if __name__ == '__main__':
                        )
     else:
         print("Database file already exists, exiting")
-
-
-    # # Store birds data into the database
-    # bird_data_df = pd.read_csv(
-    #     filepath_or_buffer=bird_data_file,
-    #     header=0,
-    #     sep=bird_data_file_sep)
-    
-    # # replace '-' by "_" in file name to adhere to table schema
-    # bird_data_df = bird_data_df.rename(columns=lambda x: x.replace('-', '_'))
-
-
-    # Create the database table if doesn't exists
-    # with engine.connect() as conn:
-    #     if not engine.dialect.has_table(conn, 'birds'):
-            
-            
-    #         with open(db_sql_file, 'r') as file:
-    #             statements = file.read().split('\n\n')
-    #             for statement in statements:
-    #                 query = text(statement)
-    #                 conn.execute(query)
-    #                 conn.commit()
-    #     else:
-    #         print('Table birds already exists')
-
-    
-
-    # insert_query = text("INSERT INTO birds (id, gen, sp, en, lat, lng, url, file, file_name) VALUES (:id, :gen, :sp, :en, :lat, :lng, :url, :file, :file_name)")
-    # with engine.connect() as conn:
-    #     for index, row in bird_data_df.iterrows(): 
-    #         conn.execute(insert_query, row.to_dict())
-    #         conn.commit()
