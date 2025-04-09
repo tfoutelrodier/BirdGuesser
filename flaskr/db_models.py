@@ -38,6 +38,10 @@ class Bird(Base):
         back_populates="birds"
     )
 
+    def __repr__(self):
+        return f"Bird class with id {self.id} and name {self.en}"
+
+
 class UserSet(Base):
     __tablename__ = 'user_sets'
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -49,3 +53,6 @@ class UserSet(Base):
         secondary=bird_in_set_table,
         back_populates="user_sets"
     )
+
+    def __repr__(self):
+        return f"UserSet class with id {self.id} and name {self.set_name}"
