@@ -76,7 +76,7 @@ class Database():
         return bird_name_lst
 
 
-    def list_birds_in_set(self, set_name: str|None=None) -> list[str]:
+    def list_birds_in_set(self, set_name: str|None=None) -> list[str]|None:
         # Returns a list of all birds presetn in a given set.
         # If set doesn't exist return an empty list
         # If None, return all birds in 'birds' table
@@ -88,7 +88,7 @@ class Database():
             user_set = self.db.query(UserSet).filter(UserSet.set_name == set_name).first()
             if not user_set:
                 logging.error(f"Set '{set_name}' was not found")
-                return []
+                return None
 
             bird_obj_lst = user_set.birds
             bird_lst = [bird.en for bird in bird_obj_lst]

@@ -18,21 +18,23 @@
 
 
 {% block left_mid %}
-     <!-- Form to retrieve data about birds -->
-    <form method="POST">
+     <!-- Load a given bird song -->
+     <div class="input-group">
+        <input type="text" id="songLoadInput" placeholder="Enter a bird name">
+        <button id="loadSongButton">Load song</button>
+    </div>
+    
+     <!-- <form method="POST">
         <input type="text" id="wantedBird" name="wantedBird" required>
-        <div id="autocomplete" class="autocomplete_div"></div>  <!-- for autocomplete suggestions -->
+        <div id="autocomplete" class="autocomplete_div"></div>
         <button type="submit">Load song</button>
-    </form>
+    </form> -->
 {% endblock %}
 
 {% block left_bottom %}
+    <h3>Current bird song: <span id="currentBirdSongDisplay">None</span></h3>
     <audio id="audioPlayer" controls>
-        <source id="audioSource" type="audio/mp3" 
-        {% if song_url %}
-            src="{{ song_url }}"
-        {% endif %}
-        >
+        <source id="audioSource" type="audio/mp3" src="">
         Your browser does not support the audio element.
     </audio>
 {% endblock %}
@@ -42,18 +44,19 @@
         
     <div class="input-group">
         <input type="text" id="setNameInput" placeholder="Enter set name">
-        <button id="loadSetBtn">Load Set</button>
-        <button id="createSetBtn">Create New Set</button>
+        <button id="loadSetButton">Load Set</button>
+        <button id="createSetButton">Create Set</button>
+        <button id="deleteSetButton">Delete Set</button>
     </div>
 
     <div class="input-group">
-        <input type="text" id="elementInput" placeholder="Enter new element">
-        <button id="addElementBtn">Add Element</button>
+        <input type="text" id="birdInput" placeholder="Enter new bird name">
+        <button id="addBirdButton">Add Bird</button>
     </div>
 
     <h3>Current Set: <span id="currentSetName">None</span></h3>
 
-    <div id="birdNameList">
+    <div id="userSetContent">
         <p id="emptyMessage">No elements in the current set.</p>
     </div>
 {% endblock %}

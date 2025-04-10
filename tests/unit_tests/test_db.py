@@ -443,3 +443,27 @@ def test_get_bird(test_db: Database, test_bird_names:list):
     assert bird_obj is not None
     assert isinstance(bird_obj, Bird)
     assert bird_obj.en == bird_name
+
+
+def test_list_birds_in_set_unknown_set(test_db: Database, new_set: UserSet):
+    db = test_db
+    set_name = new_set.set_name
+    bird_lst = db.list_birds_in_set(set_name=set_name)
+    assert bird_lst is None
+
+
+def test_list_birds_in_set_empty_set(test_db: Database):
+    db = test_db
+    set_name = 'empty_set'
+    bird_lst = db.list_birds_in_set(set_name=set_name)
+    assert isinstance(bird_lst, list)
+    assert len(bird_lst) == 0
+
+
+def test_list_birds_in_set_unknown_set(test_db: Database, test_bird_names: list):
+    db = test_db
+    set_name = 'test'
+    expected_bird_lst = ["Olivaceous Saltator"] 
+    bird_lst = db.list_birds_in_set(set_name=set_name)
+    assert isinstance(bird_lst, list)
+    assert bird_lst == expected_bird_lst
