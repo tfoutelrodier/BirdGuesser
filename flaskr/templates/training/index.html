@@ -20,15 +20,12 @@
 {% block left_mid %}
      <!-- Load a given bird song -->
      <div class="input-group">
-        <input type="text" id="songLoadInput" placeholder="Enter a bird name">
+        <div class="input-autocomplete-wrapper">
+            <input type="text" id="songLoadInput" placeholder="Enter a bird name">
+            <div id="songLoadInputAutocomplete" class="autocomplete_div"></div>
+        </div>
         <button id="loadSongButton">Load song</button>
     </div>
-    
-     <!-- <form method="POST">
-        <input type="text" id="wantedBird" name="wantedBird" required>
-        <div id="autocomplete" class="autocomplete_div"></div>
-        <button type="submit">Load song</button>
-    </form> -->
 {% endblock %}
 
 {% block left_bottom %}
@@ -43,14 +40,20 @@
     <h2>Custom set manager</h2>
         
     <div class="input-group">
-        <input type="text" id="setNameInput" placeholder="Enter set name">
+        <div class="input-autocomplete-wrapper">
+            <input type="text" id="setNameInput" placeholder="Enter set name">
+            <div id="setNameInputAutocomplete" class="autocomplete_div"></div>
+        </div>
         <button id="loadSetButton">Load Set</button>
         <button id="createSetButton">Create Set</button>
         <button id="deleteSetButton">Delete Set</button>
     </div>
 
     <div class="input-group">
-        <input type="text" id="birdInput" placeholder="Enter new bird name">
+        <div class="input-autocomplete-wrapper">
+            <input type="text" id="birdInput" placeholder="Enter new bird name">
+            <div id="birdInputAutocomplete" class="autocomplete_div"></div>
+        </div>
         <button id="addBirdButton">Add Bird</button>
     </div>
 

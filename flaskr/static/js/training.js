@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let userSetList = [];
     let currentBirdsInSet = [];
     let defaultSetList = [];
+    let allBirdsList = []
 
     loadSetNames()
         .then(userSetArray => {
@@ -10,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log(userSetArray);
                 userSetList = userSetArray;
             } else {
-                console.error("User set loading did not return an Array:", userSetArray)
+                console.error("User set loading did not return an Array:", userSetArray);
             }
         })
         .catch(error => {
@@ -24,12 +25,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log(userSetArray);
                 defaultSetList = userSetArray;
             } else {
-                console.error("User set loading did not return an Array:", userSetArray)
+                console.error("User set loading did not return an Array:", userSetArray);
             }
         })
         .catch(error => {
             console.error("Failed to load user sets from database:", error);
         })
+    
+    // load all bird names in an array
+    loadBirdNames()
+        .then(birdArray => {
+            if (Array.isArray(birdArray)) {
+                console.log(birdArray);
+                allBirdsList = birdArray;
+            } else {
+                console.error("User set loading did not return an Array:", birdArray);
+            }
+        })
+        .catch(error => {
+            console.error("Failed to load user sets from database:", error);
+        })
+
 
     // DOM elements
         // user set manipulation
@@ -80,6 +96,29 @@ document.addEventListener('DOMContentLoaded', () => {
     
     
     // Add event listeners for autocomplete
+    document.getElementById('songLoadInput').addEventListener('input', function() {
+        autocompleteBirdName({
+            inputFieldId: this.getAttribute('id'),  // Div where autocomplete suggestions will be displayed
+            dataSource:allBirdsList, // Source of autocomplete data (array or api address)
+            maxResults:5,  
+        })
+    });
+
+    document.getElementById('setNameInput').addEventListener('input', function() {
+        autocompleteBirdName({
+            inputFieldId: this.getAttribute('id'),  // Div where autocomplete suggestions will be displayed
+            dataSource:userSetList, // Source of autocomplete data (array or api address)
+            maxResults:5,  
+        })
+    });
+
+    document.getElementById('birdInput').addEventListener('input', function() {
+        autocompleteBirdName({
+            inputFieldId: this.getAttribute('id'),  // Div where autocomplete suggestions will be displayed
+            dataSource:allBirdsList, // Source of autocomplete data (array or api address)
+            maxResults:5,  
+        })
+    });
 
 
     // On click event functions
@@ -463,7 +502,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadBirdSongFomDatabase(birdName) {
         let songUrl = "";
         try {
-            const url = `get_bird_song/${birdName}`
+            const url = `/training/get_bird_song/${birdName}`
             const data = {
                 method: 'GET',
                 headers: {
@@ -483,6 +522,65 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     };
 
-    // Autocomplete function
+    // load all burd names in an array for autocomplete
+    async function loadBirdNames() {
+        try {
+            const url = `/training/get_bird_name_list`
+            const data = {
+                method: 'GET',
+            }
+            const response = await fetch(url, data);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error fetching all bird names. Status ${response.status}`);
+            }
+            const birdArray = await response.json(); // use .text() to recover an html string here
+            return birdArray;
+        } catch (error) {
+            console.error(`Error fetching song url from bird ${birdName}`, error);
+            throw error;  // break code as this is not supposed to happen
+        };
+    }
 
+    // Autocomplete function
+    function autocompleteBirdName(options) {
+        // A function which create divs to show suggestions from a list when user is typing in a field
+        // suggestions are clickable to autofill the text field
+        const {
+            inputFieldId,           // id of html Text element to show suggestion for
+            dataSource,             // Source of autocomplete data (array)
+            maxResults = 5,         // Maximum number of results to show
+        } = options;
+    
+        // set up the list of possible names for autocomplete
+        const autocompleteData = dataSource
+        
+        const inputField = document.getElementById(inputFieldId);
+        const autocompleteDivId = inputFieldId + "Autocomplete" // id of html div where autocomplete suggestions will be displayed
+        const autocompleteDiv = document.getElementById(autocompleteDivId)
+        
+        inputField.addEventListener('input', function() {
+            const currentText = inputField.value.trim().toLowerCase();
+            autocompleteDiv.textContent = ''; // Clear any previous autocomplete
+    
+            if(currentText) {
+                const autocompleteDataFiltered = autocompleteData.filter(elem => elem.toLowerCase().includes(currentText));
+                const autocompleteDataFilteredLimited = autocompleteDataFiltered.slice(0, maxResults);  // Limit results
+                
+                // crezate the div elements for showing autocomplete suggestions
+                autocompleteDataFilteredLimited.forEach(elem => {
+                    const autocompleteElement = document.createElement('div');
+                    autocompleteElement.textContent = elem;
+                    autocompleteElement.classList.add('autocomplete-item');
+                    
+                    // Allow clicking on autocomplete to fill the text box
+                    autocompleteElement.addEventListener('click', function() {
+                        inputField.value = elem;
+                        autocompleteDiv.textContent = ''; // Clear autocompletes afterwards
+                    });
+                    autocompleteDiv.appendChild(autocompleteElement);
+                });
+            };
+        });
+    };
 });

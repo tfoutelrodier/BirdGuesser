@@ -16,3 +16,4 @@ tests/unit_tests/__pycache__
 tests/integration_tests/__pycache__
 tests/production_tests/__pycache__
 .gitignore
+temp.py

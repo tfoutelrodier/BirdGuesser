@@ -24,35 +24,3 @@ def app() -> 'flask.Flask':
 def client(app:'flask.Flask'):
     """Create a test client for the app in testing context."""
     return app.test_client()
-
-
-@pytest.fixture
-def test_df() -> pd.DataFrame:
-    # test dataset with two rows
-    test_df = pd.DataFrame(
-        [
-            {
-                'id':'542031',
-                'gen':'Saltator',
-                'sp':'olivascens',
-                'en':'Olivaceous Saltator',
-                'lat':'4.447',
-                'lng':'-75.1535',
-                'url':'//xeno-canto.org/542031',
-                'file':'https://xeno-canto.org/542031/download',
-                'file-name':'XC542031-Saltator coerulescens.mp3'
-            },
-            {
-                'id':'540091',
-                'gen':'Basileuterus',
-                'sp':'delattrii',
-                'en':'Chestnut-capped Warbler',
-                'lat':'4.351',
-                'lng':'-74.652',
-                'url':'//xeno-canto.org/540091',
-                'file':'https://xeno-canto.org/540091/download',
-                'file-name':'XC540091-Rufous-capped Warbler.mp3'
-            }
-        ]
-                            )
-    return test_df

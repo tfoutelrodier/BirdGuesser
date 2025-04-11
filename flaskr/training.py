@@ -19,7 +19,7 @@ from flaskr.db import get_db
 training_bp = Blueprint('training', __name__)
 
 
-@training_bp.route('/', methods=('GET'))
+@training_bp.route('/', methods=['GET'])
 def index():
     """Page where user can creates bird sets to train on"""
 
