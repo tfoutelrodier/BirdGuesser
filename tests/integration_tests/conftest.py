@@ -4,15 +4,20 @@
 import os
 import sys
 
+from flask import Flask
+from flask.testing import FlaskClient
 import pytest
-import pandas as pd
+from sqlalchemy import create_engine
+from sqlalchemy.engine import Engine
 
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.insert(0, root_dir)
 from flaskr import create_app
+from flaskr.db import Database
+
 
 @pytest.fixture
-def app() -> 'flask.Flask':
+def app():
     """Create and configure a Flask app for testing."""
     app = create_app('testing')
 
@@ -21,38 +26,26 @@ def app() -> 'flask.Flask':
 
 
 @pytest.fixture
-def client(app:'flask.Flask'):
+def client(app: Flask) -> FlaskClient:
     """Create a test client for the app in testing context."""
     return app.test_client()
 
 
-@pytest.fixture
-def test_df() -> pd.DataFrame:
-    # test dataset with two rows
-    test_df = pd.DataFrame(
-        [
-            {
-                'id':'542031',
-                'gen':'Saltator',
-                'sp':'olivascens',
-                'en':'Olivaceous Saltator',
-                'lat':'4.447',
-                'lng':'-75.1535',
-                'url':'//xeno-canto.org/542031',
-                'file':'https://xeno-canto.org/542031/download',
-                'file-name':'XC542031-Saltator coerulescens.mp3'
-            },
-            {
-                'id':'540091',
-                'gen':'Basileuterus',
-                'sp':'delattrii',
-                'en':'Chestnut-capped Warbler',
-                'lat':'4.351',
-                'lng':'-74.652',
-                'url':'//xeno-canto.org/540091',
-                'file':'https://xeno-canto.org/540091/download',
-                'file-name':'XC540091-Rufous-capped Warbler.mp3'
-            }
-        ]
-                            )
-    return test_df
+@pytest.fixture(scope='session')
+def engine(app: Flask):
+    db_file = app.config['DB_FILE']
+    _engine = create_engine(f"sqlite+pysqlite:///{db_file}")
+
+    # Use yied for automatic engine disposal at the end
+    yield _engine
+    _engine.dispose()
+
+
+@pytest.fixture(scope='function')
+def db(engine: Engine):
+    """Fixture to create a Database class instance connected to engine."""
+    db = Database(engine)
+    yield db
+    db.close_db()
+
+

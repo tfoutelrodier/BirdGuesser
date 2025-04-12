@@ -19,7 +19,7 @@ class Config:
     DB_FILE = os.path.join(os.path.dirname(__file__), '..', 'data', 'birds_db.db')
     BIRD_DATA_FILE = os.path.join(os.path.dirname(__file__), '..', 'data', 'french_bird_data.csv')
     BIRD_DATA_FILESEP = "|"
-
+    DEFAULT_SET_LIST = ['common_birds']
     # for deployement specific configurations
     # for example, vercel needs different session storing path than local hosting
     HOSTING = os.getenv('HOSTING')
@@ -44,7 +44,7 @@ class TestConfig(Config):
     SECRET_KEY = os.getenv('TEST_SECRET_KEY')
     DEBUG = True
     LOGS_LEVEL = logging.DEBUG
-
+    DEFAULT_SET_LIST = ['test']
 
 # Standard config when coding
 class DevConfig(Config):

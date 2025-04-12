@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-Deal with the training mode
-Training mode is where you are tested on a set of bird you have defined
-
-Idea : create a table with all the records for the current session. Then select from it
+Training page
+- You can listen to whatever bird song you want
+- You can create, delete and load custom sets for playing the game
 """
 
-from flask import Blueprint, render_template, request, session, jsonify
+import logging
 
-from flaskr.db import add_bird_to_user_set, get_all_birds, get_birds_from_set
+from flask import Blueprint, render_template, request, session, jsonify, current_app
+
+from flaskr.db import get_db
 # from werkzeug.security import check_password_hash, generate_password_hash
 
 # from db import get_db, create_profile_table
@@ -18,34 +19,30 @@ from flaskr.db import add_bird_to_user_set, get_all_birds, get_birds_from_set
 training_bp = Blueprint('training', __name__)
 
 
-@training_bp.route('/', methods=('GET', 'POST'))
+@training_bp.route('/', methods=['GET'])
 def index():
     """Page where user can creates bird sets to train on"""
 
      # default varaible that are used to update html when user answer a question
-    song_url = ""  # No url present at first
+    # song_url = ""  # No url present at first
 
-    if request.method == 'POST':
-        # Avoid capitalization issue
-        bird_name = request.form.get('wantedBird', '').strip().lower()  
-        bird_data = get_bird_data(session['data_path'], [bird_name])
+    # if request.method == 'POST':
+    #     # Avoid capitalization issue
+    #     bird_name = request.form.get('wantedBird', '').strip().lower()
+
+    #     db = get_db() 
+    #     bird = db.get_bird(bird_name=bird_name)
         
-        # construct the link manually if missing for some reason
-        if bird_data.size == 0:
-            return "Bird is not in database", 404
+    #     if bird is None:
+    #         logging.error(f"Bird '{bird_name}' is not in database.")
+    #         return "Bird is not in database", 404
         
-        session['bird_name'] = bird_name
+        # session['bird_name'] = bird_name
+        # session['bird_sound_file'] = bird.file
+        
+    #     song_url = session['bird_sound_file']  # THis could be done better, refactor later
 
-        if bird_data['file'].iloc[0] is not None:
-            session['bird_sound_file'] = bird_data['file'].iloc[0]
-        else:
-            session['bird_sound_file'] = f"https://www.xeno-canto.org/{str(bird_data['id'].iloc[0])}/download"
-        song_url = session['bird_sound_file']  # THis could be done better, refactor later
-
-    return render_template('training/index.html', 
-                          title='BirdGuesser',
-                          subtitle='Train to identify birds by their songs',
-                          song_url=song_url)
+    return render_template('training/index.html')
 
 
 @training_bp.route('/get_bird_name_list', methods=['GET'])
@@ -58,28 +55,134 @@ def get_bird_name_list():
         return "Bird names not loaded in session", 404
 
 
-@training_bp.route('add_to_user_set/<user_set>/<bird_name>', methods=['POST'])
-def add_to_user_set(user_set: str, bird_name: str):
-
-    if user_set != 'birds':
-        add_bird_to_user_set(bird_name=bird_name, set_name=user_set)
-        return "", 200
-    else:
-        return "Can't name a set 'birds'", 403
-
-
 @training_bp.route('/get_birds_in_set/<set_name>')
 def get_birds_in_set(set_name: str = None):
     """
     Return a list of all birds in a set
     if no set name, return all birds
     """
+    db = get_db()
     if set_name is None:
-        bird_lst = get_all_birds(set_name) 
+        bird_lst = db.list_all_birds() 
     else:
-        bird_lst = get_birds_from_set(set_name)
-    
-    if bird_lst == []:
+        bird_lst = db.list_birds_in_set(set_name)
+    logging.debug(f"bird set {set_name} has {bird_lst}")
+
+    if bird_lst is None:
         return "bird set not found", 404
     else:
         return bird_lst, 200
+
+
+@training_bp.route('/get_user_sets/<option>', methods=['GET'])
+def get_user_sets(option: str='all'):
+    """
+    Returns a list of all created user sets
+    If none, returns an empty list
+    With option = default, returns the list of default sets that shouldn't be modified or deleted
+    """
+    valid_options = ['all', 'default']
+    if option not in valid_options:
+        logging.error(f'invalid option passed to /training/get_user_sets: {option}. Returning all birds instead')
+        option = "all"
+    db = get_db()
+    if option == 'all':
+        set_lst = db.list_all_sets()
+    elif option == 'default':
+        set_lst = current_app.config['DEFAULT_SET_LIST']
+    else:
+        error_message = f'invalid option in get_user_sets: {option}'
+        logging.error(error_message)
+        raise ValueError(error_message)
+    return set_lst, 200
+
+
+@training_bp.route('/delete_set/<set_name>', methods=['POST'])
+def delete_set(set_name: str|None):
+    """
+    Delete a user set from the database
+    """
+    if set_name is None:
+        return "No set name provided", 404
+    elif request.method != 'POST':
+        return "Only post method is supported", 404
+    
+    db = get_db()
+    is_deleted = db.delete_user_set(set_name)
+    if is_deleted:
+        return "", 200
+    else:
+        return "", 404 
+
+
+@training_bp.route('/create_set/<set_name>', methods=['POST'])
+def create_set(set_name: str|None):
+    """
+    create an empty user with name set_name set in the database
+    """
+    if set_name is None:
+        return "No set name provided", 404
+    elif request.method != 'POST':
+        return "Only post method is supported", 404
+    
+    db = get_db()
+    is_created = db.create_user_set(set_name)
+    if is_created:
+        return "", 200
+    else:
+        return "", 404 
+
+
+@training_bp.route('add_to_user_set/<user_set>/<bird_name>', methods=['POST'])
+def add_to_user_set(user_set: str, bird_name: str):
+    """
+    Add bird to set in dataabse
+    """
+    if request.method != 'POST':
+        return "Only post method is supported", 404
+
+    db = get_db()
+    is_added = db.add_bird_in_set(bird_name, user_set)
+    if is_added:
+        return "", 200
+    else:
+        return "", 404
+    
+
+@training_bp.route('remove_bird_from_set/<user_set>/<bird_name>', methods=['POST'])
+def remove_bird_from_set(user_set: str, bird_name: str):
+    """
+    remove bird from set in dataabse
+    """
+    if request.method != 'POST':
+        return "Only post method is supported", 404
+
+    db = get_db()
+    is_deleted = db.remove_bird_from_set(bird_name, user_set)
+    if is_deleted:
+        return "", 200
+    else:
+        return "", 404
+    
+
+@training_bp.route('get_bird_song/<bird_name>', methods=['GET'])
+def get_bird_song(bird_name: str=""):
+    """
+    get a bird_song url
+    """
+    if request.method != 'GET':
+        return "Only get method is supported", 405
+
+    db = get_db()
+    bird_obj = db.get_bird(bird_name)
+    if bird_obj is None:
+        logging.info(f"Bird {bird_name} not found")
+        return "", 404
+    
+    if bird_obj.file is None:
+        logging.info(f"No song file for bird {bird_obj.id} -- {bird_obj.en}")
+        return "", 404
+    
+    song_url = bird_obj.file
+    return song_url, 200
+    

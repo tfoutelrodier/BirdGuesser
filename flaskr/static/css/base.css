@@ -92,3 +92,41 @@ img {
     max-width: 100%;
     height: auto;
 }
+
+/* Autocomplete text field */
+
+.input-autocomplete-wrapper {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.autocomplete_div {
+    background-color: #fff;
+    color: #4682b4;
+    border: none;
+    position: absolute;
+    top: 100%;
+    left: 0;  
+    width: 100%;
+    z-index: 10; /* To display on top */
+}
+
+.autocomplete_div:hover {
+    background-color: #e6f2ff;
+    color: #2d5986;
+}
+
+.autocomplete-item {
+    background-color: #fff;
+    color: #4682b4;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.autocomplete-item:hover {
+    background-color:#4682b4;
+    color:#fff;
+}

@@ -1,42 +1,69 @@
-
 .training-container {
     background-color: #e6f2ff;
     padding: 15px;
     border-radius: 8px;
 }
 
-.autocomplete_div {
-    background-color: #fff;
-    color: #4682b4;
-    border: none;
+.list-container {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+    width: 300px;
+}
+.list-item {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+}
+.list-item:last-child {
+    border-bottom: none;
 }
 
-.autocomplete_div:hover {
-    background-color: #e6f2ff;
-    color: #2d5986;
+/* user set management */
+.input-group {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
 }
-
-.autocomplete-item {
-    background-color: #fff;
-    color: #4682b4;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s, color 0.3s;
+.input-group input {
+    flex-grow: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }
-
-.autocomplete-item:hover {
-    background-color:#4682b4;
-    color:#fff;
-}
-
-.nav-button {
-    background-color: #fff;
-    color: #4682b4;
+button { 
+    padding: 8px 16px;
+    color: #fff;
+    background-color: #4682b4;
     border: none;
     border-radius: 5px;
-    padding: 8px 15px;
+    /* padding: 8px 15px; */
     cursor: pointer;
-    font-weight: bold;
     transition: background-color 0.3s, color 0.3s;
+}
+button:hover {
+    background-color:#315c80;
+    /* background-color: #45a049; */
+}
+
+#birdNameList {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    min-height: 200px;
+}
+
+.list-item {
+    padding: 8px;
+    margin: 5px 0;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.remove-button {
+    background-color: #f44336;
+    padding: 2px 8px;
+    font-size: 12px;
 }

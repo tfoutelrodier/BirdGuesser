@@ -18,30 +18,50 @@
 
 
 {% block left_mid %}
-     <!-- Form to retrieve data about birds -->
-    <form method="POST">
-        <input type="text" id="wantedBird" name="wantedBird" required>
-        <div id="autocomplete" class="autocomplete_div"></div>  <!-- for autocomplete suggestions -->
-        <button type="submit">Load song</button>
-    </form>
+     <!-- Load a given bird song -->
+     <div class="input-group">
+        <div class="input-autocomplete-wrapper">
+            <input type="text" id="songLoadInput" placeholder="Enter a bird name">
+            <div id="songLoadInputAutocomplete" class="autocomplete_div"></div>
+        </div>
+        <button id="loadSongButton">Load song</button>
+    </div>
 {% endblock %}
 
 {% block left_bottom %}
+    <h3>Current bird song: <span id="currentBirdSongDisplay">None</span></h3>
     <audio id="audioPlayer" controls>
-        <source id="audioSource" type="audio/mp3" 
-        {% if song_url %}
-            src="{{ song_url }}"
-        {% endif %}
-        >
+        <source id="audioSource" type="audio/mp3" src="">
         Your browser does not support the audio element.
     </audio>
 {% endblock %}
 
+{% block right_top %}
+    <h2>Custom set manager</h2>
+        
+    <div class="input-group">
+        <div class="input-autocomplete-wrapper">
+            <input type="text" id="setNameInput" placeholder="Enter set name">
+            <div id="setNameInputAutocomplete" class="autocomplete_div"></div>
+        </div>
+        <button id="loadSetButton">Load Set</button>
+        <button id="createSetButton">Create Set</button>
+        <button id="deleteSetButton">Delete Set</button>
+    </div>
 
-{% block right_mid %}
-    <h2>Featured Bird</h2>
-    <img src="{{ url_for('static', filename='assets/raven.jpg') }}" alt="Ravec">
-    <p>Common raven (Corvus vorax)</p>
+    <div class="input-group">
+        <div class="input-autocomplete-wrapper">
+            <input type="text" id="birdInput" placeholder="Enter new bird name">
+            <div id="birdInputAutocomplete" class="autocomplete_div"></div>
+        </div>
+        <button id="addBirdButton">Add Bird</button>
+    </div>
+
+    <h3>Current Set: <span id="currentSetName">None</span></h3>
+
+    <div id="userSetContent">
+        <p id="emptyMessage">No elements in the current set.</p>
+    </div>
 {% endblock %}
 
 
