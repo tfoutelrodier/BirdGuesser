@@ -184,7 +184,7 @@ class Database():
         return True
 
 
-    def get_random_bird_from_set(self, set_name:str) -> Bird | None:
+    def get_random_bird_from_set(self, set_name:str|None) -> Bird | None:
         """
         Select a random bird from a user set. 
         Is set is None, select a random bird from the birds table instead

@@ -22,39 +22,20 @@ training_bp = Blueprint('training', __name__)
 @training_bp.route('/', methods=['GET'])
 def index():
     """Page where user can creates bird sets to train on"""
-
-     # default varaible that are used to update html when user answer a question
-    # song_url = ""  # No url present at first
-
-    # if request.method == 'POST':
-    #     # Avoid capitalization issue
-    #     bird_name = request.form.get('wantedBird', '').strip().lower()
-
-    #     db = get_db() 
-    #     bird = db.get_bird(bird_name=bird_name)
-        
-    #     if bird is None:
-    #         logging.error(f"Bird '{bird_name}' is not in database.")
-    #         return "Bird is not in database", 404
-        
-        # session['bird_name'] = bird_name
-        # session['bird_sound_file'] = bird.file
-        
-    #     song_url = session['bird_sound_file']  # THis could be done better, refactor later
-
     return render_template('training/index.html')
 
 
 @training_bp.route('/get_bird_name_list', methods=['GET'])
 def get_bird_name_list():
-    # return a json serialised list of all possible bird names
+    # return a list of all possible bird names
     if 'bird_name_list' in session:
-        return jsonify(session['bird_name_list']), 200
+        return session['bird_name_list'], 200
     else:
-        session['bird_name_list']
+        # session['bird_name_list']
         return "Bird names not loaded in session", 404
 
 
+@training_bp.route('/get_birds_in_set')
 @training_bp.route('/get_birds_in_set/<set_name>')
 def get_birds_in_set(set_name: str = None):
     """
@@ -62,29 +43,30 @@ def get_birds_in_set(set_name: str = None):
     if no set name, return all birds
     """
     db = get_db()
-    if set_name is None:
+    if set_name is None or set_name == "":
         bird_lst = db.list_all_birds() 
     else:
         bird_lst = db.list_birds_in_set(set_name)
     logging.debug(f"bird set {set_name} has {bird_lst}")
 
-    if bird_lst is None:
+    if bird_lst is None or bird_lst == []:
         return "bird set not found", 404
     else:
         return bird_lst, 200
 
 
+@training_bp.route('/get_user_sets', methods=['GET'])
 @training_bp.route('/get_user_sets/<option>', methods=['GET'])
 def get_user_sets(option: str='all'):
     """
     Returns a list of all created user sets
     If none, returns an empty list
     With option = default, returns the list of default sets that shouldn't be modified or deleted
+
+    args: 
+        option: str, a value from ['all', 'default']
     """
-    valid_options = ['all', 'default']
-    if option not in valid_options:
-        logging.error(f'invalid option passed to /training/get_user_sets: {option}. Returning all birds instead')
-        option = "all"
+    set_lst = []
     db = get_db()
     if option == 'all':
         set_lst = db.list_all_sets()
@@ -93,7 +75,7 @@ def get_user_sets(option: str='all'):
     else:
         error_message = f'invalid option in get_user_sets: {option}'
         logging.error(error_message)
-        raise ValueError(error_message)
+        return [], 400
     return set_lst, 200
 
 
