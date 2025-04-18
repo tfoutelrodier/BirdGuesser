@@ -3,8 +3,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let userSetList = [];
     let currentBirdsInSet = [];
     let defaultSetList = [];
-    let allBirdsList = []
+    let allBirdsList = [];
 
+    // load the names for all bird sets in database
     loadSetNames()
         .then(userSetArray => {
             if (Array.isArray(userSetArray)) {
@@ -18,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Failed to load user sets from database:", error);
         })
     
-    // load base prefilled sets that cannot be modified
+    // load the names of bird sets that cannot be modified
     loadSetNames(baseSets=true)
         .then(userSetArray => {
             if (Array.isArray(userSetArray)) {
@@ -153,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             alert(`Set "${setName}" does not exist. Create it first.`);
         }
-    }
+    };
     
     function createSet() {
         // Create a user set with input name
@@ -203,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(error => {
                 console.error("Failed to create user set in database:", error);
             })
-    }
+    };
 
     function addBird() {
         // add a bird to the current set
@@ -236,7 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(error => {
                 console.error("Failed to add bird to set in database:", error);
             })
-    }
+    };
 
     function deleteSet() {
         // Delete user set
@@ -267,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(error => {
                 console.error("Failed to delete set from database:", error);
             });
-    }
+    };
 
     function loadSongUrl() {
         // Get a song url from a bird
@@ -294,7 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch(error => {
             console.error("Failed to load bird song from database:", error);
         })
-    }
+    };
 
     // helper functions
 
@@ -522,10 +523,10 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     };
 
-    // load all burd names in an array for autocomplete
+    // load all bird names in an array for autocomplete
     async function loadBirdNames() {
         try {
-            const url = `/training/get_bird_name_list`
+            const url = `/training/get_birds_in_set`
             const data = {
                 method: 'GET',
             }

@@ -7,44 +7,64 @@
 {% block left_top %}
 
     <h1>Which bird is it ?</h1>
-    <!-- Bird song player -->
     <audio id="audioPlayer" controls>
-        <source id="audioSource" type="audio/mp3" >
+        <source id="audioSource" type="audio/mp3" src="">
         Your browser does not support the audio element.
-    </audio>    
+    </audio>
 
-{% endblock %}
+    <div class="input-group">
+        <div class="input-autocomplete-wrapper">
+            <input type="text" id="userAnswer" placeholder="Enter bird name...">
+            <div id="userAnswerAutocomplete" class="autocomplete_div"></div>
+        </div>
+        <button id="userAnswerButton">Check answer</button>
+        <button id="newGuessButton">Next round</button>
+        <button id="newGameButton">New game</button>
+    </div>
 
-
-{% block left_mid %}
-<!-- answer form for user guess of bird name-->
-    <form method="POST">
-        <label for="answer">Your Answer:</label>
-        <input type="text" id="answer" name="answer" required>
-        <div id="autocomplete" class="autocomplete_div"></div>  <!-- for autocomplete suggestions -->
-        <button type="submit">Submit</button>
-    </form>
-{% endblock %}
-
-{% block left_bottom %}
-    {% if message %}
-    {% set text_color = 'green' if 'Correct' in message else 'red' %}
-    <p style="color: {{ text_color }};">  <!-- VSCode throws a warning/error signal here but it works -->
-        {{ message }}
-    </p>
-    {% endif %}
+    <!-- meesages will be displayed here after the user enter a bird name -->
+    <div class="result-message">
+        <p id="resultMessage"></p>
+    </div>
 {% endblock %}
 
 {% block right_top %}
+    <!-- set selection -->
+    <div class="input-group">
+        <div class="input-autocomplete-wrapper">
+            <input type="text" id="setNameInput" placeholder="Enter set name">
+            <div id="setNameInputAutocomplete" class="autocomplete_div"></div>
+        </div>
+        <button id="loadSetButton">Load Set</button>
+    </div>
     <p>
-        Try to guess the bird ! 
-    </p>
-    <p>
-        After each submission, a new bird sound is loaded.
+        <h3>Current bird set: <span id="setNameDisplay">None</span></h3> 
     </p>
 {% endblock %}
 
+{% block right_mid %}
+    <!-- game score display -->
+     <div id="gameScoreDisplay">
+        <p>
+            Current score: <span id="goodScore"></span> / <span id="totalGuesses"></span>
+        </p>
+     </div>
+{% endblock %}
+
+{% block end_game_window %}
+     <!-- end game window -->
+    <div id="endGameWindow" class="end-game-window-overlay hidden">
+        <div class="end-game-window-content">
+            <p id="endGameMessage">Game Over!</p>
+            <div class="end-game-window-buttons">
+                <button id="endGameReplayButton">Replay ?</button>
+                <button id="endGameCloseWindowButton">Close</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
 
 {% block scripts %}
     <script src="{{ url_for('static', filename='js/game.js') }}"></script>
 {% endblock %}
+

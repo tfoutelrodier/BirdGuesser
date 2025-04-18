@@ -16,68 +16,57 @@ from flaskr.db import get_db
 
 game_bp = Blueprint('game', __name__)
 
-@game_bp.route('/', methods=['GET', 'POST'])
+@game_bp.route('/', methods=['GET'])
 def index():
     """landing page for game"""
     
-    # default varaible that are used to update html when user answer a question
-    message = ""  # Default message
-    correct_answer = ""  # Default answer
+    # # default varaible that are used to update html when user answer a question
+    # message = ""  # Default message
+    # correct_answer = ""  # Default answer
 
-    if request.method == 'POST':
-        # Avoid capitalization issue
-        user_answer = request.form.get('answer', '').strip().lower()  
-        correct_answer = session.get('bird_name', '').strip().lower()
+    # if request.method == 'POST':
+    #     # Avoid capitalization issue
+    #     user_answer = request.form.get('answer', '').strip().lower()  
+    #     correct_answer = session.get('bird_name', '').strip().lower()
 
-        if user_answer == correct_answer:
-            message = f"Correct! It's indeed a {correct_answer}"
-        else:
-            message = f"That's wrong! It was a {correct_answer}"
-
-
-    return render_template('game/index.html', 
-                          title='BirdGuesser',
-                          subtitle='Time to play ! Can you identidy the birds ?',
-                          message=message,
-                          correct_answer=correct_answer)
+    #     if user_answer == correct_answer:
+    #         message = f"Correct! It's indeed a {correct_answer}"
+    #     else:
+    #         message = f"That's wrong! It was a {correct_answer}"
 
 
-@game_bp.route('/select_random_bird', methods=['GET'])
-def select_random_bird():
+    return render_template('game/index.html')
+                        #   title='BirdGuesser',
+                        #   subtitle='Time to play ! Can you identidy the birds ?',
+                        # #   message=message,
+                        # #   correct_answer=correct_answer)
+
+
+@game_bp.route('/get_random_bird_data', methods=['GET'])
+@game_bp.route('/get_random_bird_data/<set_name>', methods=['GET'])
+def select_random_bird(set_name:str|None=None) -> dict[str:str]:
     """
-    Select a random element from current loaded data 
-    Store it in the session (update if needed)
+    Return a dictionary with data from a random bird from a given set.
     """
-    # get a random bird name from current set
-    user_set_name = None
-    if 'user_set_name' in session:
-        user_set_name = session['user_set_name']
-        current_app.logger.info(f"Using {user_set_name} set from session.")
-    else:
-        current_app.logger.info(f"No user set defined, using common_birds by default")
-        user_set_name = "common_birds"
-    
     db = get_db()
-    random_bird =  db.get_random_bird_from_set(user_set_name)
-    
+
+    if set_name is None:
+        logging.error("No bird set selected")
+        return "", 404
+    logging.debug(f'db is of type: {type(db)}')
+    random_bird =  db.get_random_bird_from_set(set_name)
+
     # check if data was actually selected
     if random_bird is None:
-        logging.error(f"Couldn't load a bird from user_set {user_set_name}")
+        logging.error(f"Couldn't load a bird from user_set {set_name}")
         return "", 404
     
-    bird_id = random_bird.id
-    bird_name = random_bird.en
-    sound_url = random_bird.file
+    return_dict = {
+        'name': random_bird.en,
+        'sound_url': random_bird.file
+    }
 
-    # construct the link manually if missing for some reason
-    if sound_url is None:
-        sound_url = f"https://www.xeno-canto.org/{str(bird_id)}/download"
-
-    # Store data in session
-    session['bird_name'] = bird_name
-    session['bird_id'] = bird_id
-    session['bird_sound_file'] = sound_url 
-    return "", 200
+    return return_dict, 200
 
 
 
